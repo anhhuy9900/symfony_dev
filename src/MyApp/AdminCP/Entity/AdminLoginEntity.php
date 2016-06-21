@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityRepository;
  * @ORM\Entity(repositoryClass="AppBundle\Entity\ProductRepository")
  * @ORM\Table(name="system_users")
  */
-class AdminLoginEntity extends EntityRepository{
+class AdminLoginEntity {
     /**
      * @ORM\Column(type="integer")
      * @ORM\id

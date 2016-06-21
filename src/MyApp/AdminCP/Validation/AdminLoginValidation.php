@@ -1,25 +1,19 @@
 <?php
 namespace MyApp\AdminCP\Validation;
 
+use MyApp\AdminCP\Controller\AdminCPController;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintValidator;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\ExecutionContext;
+use \Symfony\Component\DependencyInjection\ContainerInterface;
 
-class AdminLoginValidation  {
+
+class AdminLoginValidation extends AdminCPController{
 
     public $username;
     public $password;
-
-    protected $em;
-
-
-
-  public function __construct(\Doctrine\ORM\EntityManager $em)
-  {
-      $this->em = $em;
-  }
 
     public static function loadValidatorMetadata(ClassMetadata $metadata)
     {
@@ -44,26 +38,36 @@ class AdminLoginValidation  {
          $class = new AdminLoginValidation();
         /*$metadata->addConstraint($class->valid_password_not_match($class->password));
          dump($class->valid_password_not_match($class->password));*/
-        $metadata->addPropertyConstraint('password', $class->valid_password_not_match() );
+        //$metadata->addPropertyConstraint('password', $class->valid_password_not_match() );
+         $metadata->addConstraint(new Assert\Callback('validate'));
     }
 
-    public function valid_password_not_match()
+    /*public function valid_password_not_match()
     {
-        $value = md5($this->password);
+        $password = md5($this->password);
 
+        $em = $this->container->getDoctrine()->getManager();
 
-
-        $query = $this->em->createQuery(
+        $query = $em->createQuery(
             "SELECT password
             FROM  system_users pk
             WHERE pk.password > :password"
-        )->setParameter('password', $value);
+        )->setParameter('password', $password);
 
-        $result = $query->getResult();
+        $result = $em->getResult();
         if(empty($result)){
-            return TRUE;
+            return FALSE;
         }
 
-        return FALSE;
+        return TRUE;
+    }*/
+
+    public function validate()
+    {   
+        $admincp_service = $this->container->get('app.admincp_service');
+        $password = md5($this->password);
+        dump($admincp_service->valid_password_not_match($password));
+    
+        die();
     }
 }
