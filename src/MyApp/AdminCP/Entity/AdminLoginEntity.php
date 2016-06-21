@@ -4,9 +4,10 @@ namespace MyApp\AdminCP\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\EntityRepository;
 
+
 /**
  * @ORM\Entity
- * @ORM\Entity(repositoryClass="AppBundle\Entity\ProductRepository")
+ * @ORM\Entity(repositoryClass="MyApp\AdminCP\Repository\AdminCPRepository")
  * @ORM\Table(name="system_users")
  */
 class AdminLoginEntity {
@@ -110,7 +111,7 @@ class AdminLoginEntity {
     }
 
 
-    public function checkValidPassword($value){
+    /*public function checkValidPassword($value){
 
         //$doctrime = $this->_em->getDoctrine()->getManager();
 
@@ -126,6 +127,6 @@ class AdminLoginEntity {
         }
 
         return FALSE;
-    }
+    }*/
 
 }

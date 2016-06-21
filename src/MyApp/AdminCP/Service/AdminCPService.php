@@ -1,7 +1,10 @@
 <?php
 namespace MyApp\AdminCP\Service;
 
-class AdminCPService {
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
+class AdminCPService extends Controller{
 
 
     function __construct()

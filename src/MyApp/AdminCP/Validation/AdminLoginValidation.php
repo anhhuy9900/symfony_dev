@@ -1,19 +1,27 @@
 <?php
 namespace MyApp\AdminCP\Validation;
 
-use MyApp\AdminCP\Controller\AdminCPController;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\ExecutionContext;
-use \Symfony\Component\DependencyInjection\ContainerInterface;
+use MyApp\AdminCP\Entity\AdminLoginEntity;
+use MyApp\AdminCP\Repository\AdminCPRepository;
 
 
-class AdminLoginValidation extends AdminCPController{
+
+class AdminLoginValidation extends Controller {
 
     public $username;
     public $password;
+
+    public function __construct($em, ClassMetadata $class)
+    {
+        parent::__construct($em, $class);
+        // some extra stuff
+    }
 
     public static function loadValidatorMetadata(ClassMetadata $metadata)
     {
@@ -64,6 +72,14 @@ class AdminLoginValidation extends AdminCPController{
 
     public function validate()
     {   
+        $entity = new AdminLoginEntity();
+        $repository = new AdminCPRepository();
+        //$articleRepo = $this->getDoctrine()->getRepository('AdminCPBundle:AdminLoginEntity');
+        //dump($articleRepo->checkValidPassword('556655'));
+        dump($repository);
+        die;
+
+
         $admincp_service = $this->container->get('app.admincp_service');
         $password = md5($this->password);
         dump($admincp_service->valid_password_not_match($password));
