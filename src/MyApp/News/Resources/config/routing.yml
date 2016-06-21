@@ -1,0 +1,3 @@
+news_routing:
+    pattern:  /news
+    defaults: { _controller: NewsBundle:News:index }
