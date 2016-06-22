@@ -4,24 +4,13 @@ namespace MyApp\AdminCP\Validation;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use Symfony\Component\Validator\ExecutionContext;
-use MyApp\AdminCP\Entity\AdminLoginEntity;
-use MyApp\AdminCP\Repository\AdminCPRepository;
-
 
 
 class AdminLoginValidation extends Controller {
 
     public $username;
     public $password;
-
-    public function __construct($em, ClassMetadata $class)
-    {
-        parent::__construct($em, $class);
-        // some extra stuff
-    }
 
     public static function loadValidatorMetadata(ClassMetadata $metadata)
     {
@@ -43,47 +32,27 @@ class AdminLoginValidation extends Controller {
             'maxMessage' => 'Password cannot be longer than {{ limit }} characters',
         )));
 
-         $class = new AdminLoginValidation();
-        /*$metadata->addConstraint($class->valid_password_not_match($class->password));
-         dump($class->valid_password_not_match($class->password));*/
-        //$metadata->addPropertyConstraint('password', $class->valid_password_not_match() );
-         $metadata->addConstraint(new Assert\Callback('validate'));
+
+        $metadata->addConstraint(new Assert\Callback('validate'));
     }
 
-    /*public function valid_password_not_match()
-    {
-        $password = md5($this->password);
+    public function validate(ExecutionContextInterface $context)
+    {   
+        global $kernel;
 
-        $em = $this->container->getDoctrine()->getManager();
+        $admincp_service = $kernel->getContainer()->get('app.admincp_service');
 
-        $query = $em->createQuery(
-            "SELECT password
-            FROM  system_users pk
-            WHERE pk.password > :password"
-        )->setParameter('password', $password);
-
-        $result = $em->getResult();
-        if(empty($result)){
-            return FALSE;
+        if(!$admincp_service->admin_checkValidUsername($this->username)){
+            $context->buildViolation('The username invalid')
+                ->atPath('username')
+                ->addViolation();
         }
 
-        return TRUE;
-    }*/
-
-    public function validate()
-    {   
-        $entity = new AdminLoginEntity();
-        $repository = new AdminCPRepository();
-        //$articleRepo = $this->getDoctrine()->getRepository('AdminCPBundle:AdminLoginEntity');
-        //dump($articleRepo->checkValidPassword('556655'));
-        dump($repository);
-        die;
-
-
-        $admincp_service = $this->container->get('app.admincp_service');
-        $password = md5($this->password);
-        dump($admincp_service->valid_password_not_match($password));
-    
-        die();
+        if(!$admincp_service->admin_checkValidPassword($this->password)){
+            $context->buildViolation('The password invalid')
+                ->atPath('password')
+                ->addViolation();
+        }
+        
     }
 }

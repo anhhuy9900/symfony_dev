@@ -7,8 +7,8 @@ use Doctrine\ORM\EntityRepository;
 
 /**
  * @ORM\Entity
- * @ORM\Entity(repositoryClass="MyApp\AdminCP\Repository\AdminCPRepository")
  * @ORM\Table(name="system_users")
+ * @ORM\Entity(repositoryClass="MyApp\AdminCP\Repository\AdminCPRepository")
  */
 class AdminLoginEntity {
     /**
@@ -109,24 +109,5 @@ class AdminLoginEntity {
     public function getCreated_date() {
         return $this->created_date;
     }
-
-
-    /*public function checkValidPassword($value){
-
-        //$doctrime = $this->_em->getDoctrine()->getManager();
-
-        $query = $this->getEntityManager()->createQuery(
-            "SELECT password
-            FROM  system_users pk
-            WHERE pk.password > :password"
-        )->setParameter('password', $value);
-
-        $result = $query->getResult();
-        if(empty($result)){
-           return TRUE;
-        }
-
-        return FALSE;
-    }*/
 
 }

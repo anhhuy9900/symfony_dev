@@ -10,7 +10,6 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use MyApp\AdminCP\Validation\AdminLoginValidation;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use MyApp\AdminCP\Entity\AdminLoginEntity;
 
 
@@ -72,14 +71,14 @@ class AdminCPController extends Controller
      */
     public function testAction(Request $request)
     {   
-        $entity = new AdminLoginEntity();
+        /*$entity = new AdminLoginEntity();
         dump($entity);
         //dump($entity->checkValidPassword('66565656'));
-        die;
+        die;*/
 
-        $admincp_service = $this->container->get('app.admincp_service');
-        $password = 123456;
-        dump($admincp_service->valid_password_not_match($password));
+        $admincp_service = $this->get('app.admincp_service');
+        $password = 'anhhuy@#';
+        dump($admincp_service->checkValidPassword($password));
         die();
     }
 }
