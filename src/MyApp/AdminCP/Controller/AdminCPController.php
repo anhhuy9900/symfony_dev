@@ -15,7 +15,12 @@ use MyApp\AdminCP\Entity\AdminLoginEntity;
 
 class AdminCPController extends Controller
 {
+    private $admincp_service;
     
+    function __construct()
+    {
+        $this->admincp_service = $this->getContainer()->get('app.admincp_service');
+    }
 
     /**
      * @Route("/", name="myapp_admincp")
@@ -44,7 +49,7 @@ class AdminCPController extends Controller
         $form->handleRequest($request);
 
 
-        $form_errors = array();
+        $form_errors = '';
         if ($form->isSubmitted() && $form->isValid()) {
             $validation = new AdminLoginValidation();
 
@@ -54,9 +59,8 @@ class AdminCPController extends Controller
 
             $validator = $this->get('validator');
             $errors = $validator->validate($validation);
-            if(count($errors) > 0){
-                $form_errors = $errors;
-            }
+
+            $form_errors = $this->getErrorMessages($errors);
         }
 
         $data = array(
@@ -81,4 +85,17 @@ class AdminCPController extends Controller
         dump($admincp_service->checkValidPassword($password));
         die();
     }
+
+    private function getErrorMessages($errors) {
+        $error_message = '';
+
+        if(count($errors) > 0){
+            foreach ($errors as $key => $error) {
+                $error_message = $error->getMessage();
+                break;
+            }
+        }
+
+        return $error_message;
+    }   
 }

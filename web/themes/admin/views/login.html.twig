@@ -93,11 +93,13 @@
                                             </div>
 
                                             <div class="space-4"></div>
+                                            
+                                            {% if form_errors %}
                                             <ul>
-                                                {% for error in form_errors %}
-                                                    <li>{{ error.message }}</li>
-                                                {% endfor %}
+                                                <li>{{ form_errors }}</li>
                                             </ul>
+                                            {% endif %}
+
                                         </fieldset>
                                     {{ form_end(form) }}
 

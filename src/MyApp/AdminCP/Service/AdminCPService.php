@@ -14,15 +14,15 @@ class AdminCPService extends Controller{
         $this->em = $entityManager;
     }
 
-    function admin_checkValidPassword($password)
+    function admin_checkValidUser($username, $password)
     {
-        $password = md5($password);
 
-        $query = $this->em->createQuery(
-            "SELECT pk.password
-            FROM  AdminCPBundle:AdminLoginEntity pk
-            WHERE pk.password = :password"
-        )->setParameter('password', $password);
+        $repository = $this->em->getRepository('AdminCPBundle:AdminLoginEntity');
+        $query = $repository->createQueryBuilder('pk')
+        ->where('pk.username = :username')
+        ->andWhere('pk.password = :password')
+        ->setParameters(array('username' => $username, 'password'=> $password))
+        ->getQuery();    
 
         $result = $query->getResult();
         if(!empty($result)){
@@ -32,21 +32,17 @@ class AdminCPService extends Controller{
         return FALSE;
     }
 
-    function admin_checkValidUsername($username)
-    {
+    private function getErrorMessages($errors) {
+        $error_message = '';
 
-        $query = $this->em->createQuery(
-            "SELECT pk.username
-            FROM  AdminCPBundle:AdminLoginEntity pk
-            WHERE pk.username LIKE :username"
-        )->setParameter('username', $username);
-
-        $result = $query->getResult();
-        if(!empty($result)){
-            return TRUE;
+        if(count($errors) > 0){
+            foreach ($errors as $key => $error) {
+                $error_message = $error->getMessage();
+                break;
+            }
         }
 
-        return FALSE;
-    }
+        return $error_message;
+    }   
 
 }
