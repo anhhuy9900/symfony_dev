@@ -5,6 +5,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\EntityManager;
 use MyApp\AdminCP\Entity\AdminLoginEntity;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 
 class AdminCPService extends Controller{
 
@@ -32,17 +36,42 @@ class AdminCPService extends Controller{
         return FALSE;
     }
 
-    private function getErrorMessages($errors) {
-        $error_message = '';
 
-        if(count($errors) > 0){
-            foreach ($errors as $key => $error) {
-                $error_message = $error->getMessage();
-                break;
-            }
+    function admin_onAuthentication($data){
+        $session = new Session(new PhpBridgeSessionStorage());
+        $session->start();
+
+        $firewall = 'secured_userad';
+        $token = new UsernamePasswordToken('admin', null, $firewall, array('ROLE_ADMIN'));
+
+        /*$user = array(
+            'username' => $data['username'],
+            'ad_token' => $token,
+        );*/
+
+        $session->set('_security_'.$firewall, serialize($token));
+        $session->save();
+    }
+
+    function admin_UserSessionLogin(){
+        $session = new Session();
+
+        $valid = FALSE;
+        dump($session->get('_security_secured_userad'));
+        if($session->get('_security_secured_userad')){
+            $valid = TRUE;
         }
 
-        return $error_message;
-    }   
+        return $valid;
+    }
 
+    function admin_CheckValidLogin(){
+
+        if(!$this->admin_UserSessionLogin()){
+            $url = $this->generateUrl('admincp_login_page');
+            $this->redirect($url, 301);
+            exit();
+        }
+
+    }
 }
