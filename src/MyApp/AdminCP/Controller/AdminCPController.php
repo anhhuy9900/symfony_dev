@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use MyApp\AdminCP\Entity\AdminLoginEntity;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
+use MyApp\MyHelper\GlobalHelper;
 
 class AdminCPController extends Controller
 {
@@ -19,17 +19,15 @@ class AdminCPController extends Controller
     {
         parent::setContainer($container);
         $this->admincp_service = $this->container->get('app.admincp_service');
-        if(!$this->admincp_service->admin_UserSessionLogin()){
-            header('Location: ' . $this->generateUrl('admincp_login_page'));
-            exit();
-        }
+        $this->admincp_service->admin_CheckValidLogin();
     }
 
     /**
      * @Route("/", name="admincp_page")
      */
     public function indexAction(Request $request)
-    {
+    {   
+        //GlobalHelper::pr(1);
         $data = array();
         return $this->render('@admin/admin.html.twig', $data);
     }

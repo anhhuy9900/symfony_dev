@@ -57,7 +57,6 @@ class AdminCPService extends Controller{
         $session = new Session();
 
         $valid = FALSE;
-        dump($session->get('_security_secured_userad'));
         if($session->get('_security_secured_userad')){
             $valid = TRUE;
         }
@@ -66,10 +65,8 @@ class AdminCPService extends Controller{
     }
 
     function admin_CheckValidLogin(){
-
         if(!$this->admin_UserSessionLogin()){
-            $url = $this->generateUrl('admincp_login_page');
-            $this->redirect($url, 301);
+            header('Location: ' . $this->generateUrl('admincp_login_page'));
             exit();
         }
 
