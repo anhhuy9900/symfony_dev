@@ -63,8 +63,8 @@ class AdminSystemModulesEntity {
         $this->em = $doctrine->getEntityManager();
     }*/
 
-    public function getModuleID() {
-        return $this->module_id;
+    public function getID() {
+        return $this->id;
     }
 
     public function setParentID($parent_id) {
@@ -75,59 +75,59 @@ class AdminSystemModulesEntity {
         return $this->parent_id;
     }
 
-    public function setModuleName($module_name) {
+    public function setModule_Name($module_name) {
         $this->module_name = $module_name;
     }
 
-    public function getModuleName() {
+    public function getModule_Name() {
         return $this->module_name;
     }
 
-    public function setModuleAlias($module_alias) {
+    public function setModule_Alias($module_alias) {
         $this->module_alias = $module_alias;
     }
 
-    public function getModuleAlias() {
+    public function getModule_Alias() {
         return $this->module_alias;
     }
 
-    public function setModuleType($module_type) {
+    public function setModule_Type($module_type) {
         $this->module_type = $module_type;
     }
 
-    public function getModuleType() {
+    public function getModule_Type() {
         return $this->module_type;
     }
 
-    public function setModuleStatus($module_status) {
+    public function setModule_Status($module_status) {
         $this->module_status = $module_status;
     }
 
-    public function getModuleStatus() {
+    public function getModule_Status() {
         return $this->module_status;
     }
 
-    public function setModuleOrder($module_order) {
+    public function setModule_Order($module_order) {
         $this->module_order = $module_order;
     }
 
-    public function getModuleOrder() {
+    public function getModule_Order() {
         return $this->module_order;
     }
 
-    public function setUpdated_date($updated_date) {
+    public function setUpdated_Date($updated_date) {
         $this->updated_date = $updated_date;
     }
 
-    public function getUpdated_date() {
+    public function getUpdated_Date() {
         return $this->updated_date;
     }
 
-    public function setCreated_date($created_date) {
+    public function setCreated_Date($created_date) {
         $this->created_date = $created_date;
     }
 
-    public function getCreated_date() {
+    public function getCreated_Date() {
         return $this->created_date;
     }
 
