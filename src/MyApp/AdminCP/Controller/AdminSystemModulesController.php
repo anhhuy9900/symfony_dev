@@ -121,9 +121,18 @@ class AdminSystemModulesController extends Controller
                $em = $this->getDoctrine()->getEntityManager();
                 if($data['id'] > 0){
                     $id = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->_update_record_DB($data);
+                    if($id){
+                        $request->getSession()->getFlashBag()->add('message_data', 'Updated record success!');
+                    }
                 } else {
                     $id = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->_create_record_DB($data);
+                    if($id){
+                        $request->getSession()->getFlashBag()->add('message_data', 'Created record success!');
+                    }
                 }
+
+                $url = $this->generateUrl('admincp_system_modules_page');
+                return $this->redirect($url, 301);
 
             }
         }
@@ -136,75 +145,26 @@ class AdminSystemModulesController extends Controller
     }
 
     /**
-     * @Route("/system-modules/add", name="admincp_system_modules_add_page")
+     * @Route("/system-modules/create", name="admincp_system_modules_create_page")
      */
-    public function addAction($id, Request $request)
+    public function createAction($id, Request $request)
     {
 
-        $defaultData = array('message' => 'Type your message here');
 
-        $form = $this->createFormBuilder($defaultData)
-            //->setAction($this->generateUrl('admincp_system_modules_edit_page'))
-            ->add('parent_id', ChoiceType::class, array(
-                'label' => 'Parent',
-                'choices' => array(0 => 'Unpblish', 1 => 'Publish')
-            ))
-            ->add('module_name', TextType::class, array(
-                'label' => 'Module Name'
-            ))
-            ->add('module_alias', TextType::class, array(
-                'label' => 'Module Alias'
-            ))
-            ->add('module_order', TextType::class, array(
-                'label' => 'Module Order'
-            ))
-            ->add('module_status', ChoiceType::class, array(
-                'label' => 'Module Status',
-                'choices' => array( 0 => 'Unpblish', 1 => 'Publish')
-            ))
-            ->add('send', SubmitType::class, array(
-                'label' => 'Submit',
-            ))
-            ->getForm();
-
-        $form->handleRequest($request);
-
-        $form_errors = '';
-        if ($form->isSubmitted() && $form->isValid()) {
-            $validation = new AdminSystemModulesValidation();
-
-            $data = $form->getData();
-            $validation->module_name = $data['module_name'];;
-            $validation->module_alias = $data['module_alias'];;
-            $validation->module_order = (int)$data['module_order'];;
-
-            $validator = $this->get('validator');
-            $errors = $validator->validate($validation);
-
-            $form_errors = GlobalHelper::getErrorMessages($errors);
-            if(!$form_errors){
-                $em = $this->getDoctrine()->getEntityManager();
-                $id = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->_create_record_DB($data);
-            }
-        }
-
-        $data = array(
-            'form' => $form->createView(),
-            'form_errors' => $form_errors
-        );
-        return $this->render('@admin/system-modules/edit.html.twig', $data);
     }
 
     /**
      * @Route("/system-modules/delete/{id}", name="admincp_system_modules_delete_page")
      */
-    public function deleteAction($id)
+    public function deleteAction($id , Request $request)
     {
         if($id > 0){
             $em = $this->getDoctrine()->getEntityManager();
             $check_exist_record = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->find($id);
             if($check_exist_record){
                 $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->_delete_record_DB($id);
+
+                $request->getSession()->getFlashBag()->add('message_data', 'Deleted record success!');
             }
 
             $url = $this->generateUrl('admincp_system_modules_page');

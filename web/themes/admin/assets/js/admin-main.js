@@ -4,6 +4,9 @@ var AdminMain = window.AdminMain || {};
     AdminMain.Func = {
         init: function () {
             AdminMain.Func.get_number_litmit_records();
+            setTimeout(function(){
+                $(".alert-success").slideUp();
+            },5000);
 
         },
 

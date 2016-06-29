@@ -45,6 +45,7 @@ class AdminSystemModulesRepository extends EntityRepository
         $entity->setUpdated_Date(time());
 
         $em->flush();
+
         return $entity->getID();
     }
 
