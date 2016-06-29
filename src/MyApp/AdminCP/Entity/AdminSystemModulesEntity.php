@@ -63,6 +63,10 @@ class AdminSystemModulesEntity {
         $this->em = $doctrine->getEntityManager();
     }*/
 
+    public function setID($id) {
+        $this->id = $id;
+    }
+
     public function getID() {
         return $this->id;
     }
