@@ -56,24 +56,29 @@ class AdminSystemModulesRepository extends EntityRepository
         $em->flush();
     }
 
-    public function _getListRecords($offset, $limit){
+    public function _getListRecords($offset, $limit, $key = ''){
         $repository = $this->getEntityManager()->getRepository('AdminCPBundle:AdminSystemModulesEntity');
-        $result = $repository->createQueryBuilder('pk')
-            ->select("pk")
-            ->orderBy("pk.created_date", "DESC")
-            ->setMaxResults($offset)
-            ->setFirstResult($limit)
-            ->getQuery()
-            ->getResult();
+        $query = $repository->createQueryBuilder('pk');
+        $query->select("pk");
+        if($key){
+            $query->where('pk.module_name LIKE :key')->setParameter('key', '%'.$key.'%');
+        }
+        $query->orderBy("pk.created_date", "DESC");
+        $query->setMaxResults($offset);
+        $query->setFirstResult($limit);
+        $result = $query->getQuery();
 
-        return $result;
+        return $result->getResult();;
     }
 
-    public function _getTotalRecords(){
+    public function _getTotalRecords($key = ''){
         $repository = $this->getEntityManager()->getRepository('AdminCPBundle:AdminSystemModulesEntity');
-        $total = $repository->createQueryBuilder('pk')
-            ->select('COUNT(pk.id)')
-            ->getQuery()->getSingleScalarResult();
+        $query = $repository->createQueryBuilder('pk');
+        $query->select('COUNT(pk.id)');
+        if($key){
+            $query->where('pk.module_name LIKE :key')->setParameter('key', '%'.$key.'%');
+        }
+        $total = $query->getQuery()->getSingleScalarResult();
 
         return $total;
     }

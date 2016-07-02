@@ -34,13 +34,18 @@ class AdminSystemModulesController extends Controller
      */
     public function indexAction(Request $request)
     {
+        $key = $request->query->get('key') ? GlobalHelper::__xss_clean_string($request->query->get('key')) : '';
         $limit = $request->query->get('lm') ? (int)$request->query->get('lm') : 10;
         $page_offset = $request->query->get('p') ? (int)$request->query->get('p') : 0;
         $offset = $page_offset > 0 ? ($page_offset - 1) * $limit : $page_offset * $limit;
 
     	$repository = $this->getDoctrine()->getRepository('AdminCPBundle:AdminSystemModulesEntity');
-        $total = $repository->_getTotalRecords();
-        $results = $repository->_getListRecords($limit, $offset);
+        $total = $repository->_getTotalRecords($key);
+        $results = $repository->_getListRecords($limit, $offset, $key);
+
+        if($request->query->get('report')){
+            $this->_report_data($results);
+        }
 
         $pagination = GlobalHelper::__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_system_modules_page'));
 
@@ -172,5 +177,44 @@ class AdminSystemModulesController extends Controller
             exit();
         }
         return $this->render();
+    }
+
+    /**
+     * Report data into file excel.
+     *
+     */
+    private function _report_data($arrData = array())
+    {
+
+        $file_name = 'List-Modules-' . date('Ymd') . '.xlsx';
+
+
+        // Create excel file
+        $header = array();
+        $header[] = 'ID';
+        $header[] = 'Nodule Name';
+        $header[] = 'Module Alias';
+        $header[] = 'Module Order';
+        $header[] = 'Module Status';
+        $header[] = 'Created Date';
+
+        $data['headers'] = $header;
+
+        $rows = array();
+        if(!empty($arrData)){
+            foreach($arrData as $key => $value) {
+                $tmp = array();
+                $tmp[] = $value->getID();
+                $tmp[] = $value->getModule_Name();
+                $tmp[] = $value->getModule_Alias();
+                $tmp[] = $value->getModule_Order();
+                $tmp[] = $value->getModule_Status() == 1 ? 'Active' : 'UnActive';
+                $tmp[] = date('Y-m-d H:i:s',$value->getCreated_Date());
+
+                $rows[] = $tmp;
+            }
+            $data['rows'] = $rows;
+            GlobalHelper::__export_to_excel($data,$file_name);
+        }
     }
 }    

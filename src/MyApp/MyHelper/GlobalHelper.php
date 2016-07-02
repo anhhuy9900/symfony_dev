@@ -1,18 +1,48 @@
 <?php
+
 namespace MyApp\MyHelper;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\EntityManager;
-use MyApp\AdminCP\Entity\AdminLoginEntity;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
-use Doctrine\ORM\Tools\Pagination\Paginator;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use PHPExcel;
+
 
 class GlobalHelper{
+
+    public static function cutUnicode($str){ //C?t d?u ti?ng vi?t
+        if(!$str) return false;
+        $unicode = array(
+            'a'=>'á|à|?|ã|?|?|?|?|?|?|?|â|?|?|?|?|?',
+            'A'=>'Á|À|?|Ã|?|?|?|?|?|?|?|Â|?|?|?|?|?',
+            'd'=>'?',
+            'D'=>'?',
+            'e'=>'é|è|?|?|?|ê|?|?|?|?|?',
+            'E'=>'É|È|?|?|?|Ê|?|?|?|?|?',
+            'i'=>'í|ì|?|?|?',
+            'I'=>'Í|Ì|?|?|?',
+            'o'=>'ó|ò|?|õ|?|ô|?|?|?|?|?|?|?|?|?|?|?',
+            'O'=>'Ó|Ò|?|Õ|?|Ô|?|?|?|?|?|?|?|?|?|?|?',
+            'u'=>'ú|ù|?|?|?|?|?|?|?|?|?',
+            'U'=>'Ú|Ù|?|?|?|?|?|?|?|?|?',
+            'y'=>'ý|?|?|?|?',
+            'Y'=>'Ý|?|?|?|?'
+        );
+        foreach($unicode as $khongdau=>$codau) {
+            $arr=explode("|",$codau);
+            $str = str_replace($arr,$khongdau,$str);
+        }
+        return $str;
+    }
+
+    public static function _createSlug($string) {
+        $string= trim(self::cutUnicode($string));
+        $string = strtolower($string);
+        //Strip any unwanted characters
+        $string = preg_replace("/[^a-zA-Z0-9\/_|+ -]/", '', $string);
+        $string = strtolower(trim($string, '-'));
+        $string = preg_replace("/[\/_|+ -]+/", '-', $string);
+        return $string;
+    }
 
     public static function pr($data, $type = 0) {
         print '<pre>';
@@ -117,6 +147,143 @@ class GlobalHelper{
         $pagination = '<div class="dataTables_paginate paging_simple_numbers" id="dynamic-table_paginate"><ul class="pagination">' . $first . $prev . $link . $next . $last . '</ul></div>';
 
         return $pagination;
+    }
+
+
+    public static function __xss_clean_string($input){
+        $output = strip_tags(htmlspecialchars($input));
+        return $output;
+    }
+
+    /* EXPORT */
+    public static function __createExcelFile($header, $formatExcel = array()) {
+        //require_once DRUPAL_ROOT.'/'.'sites/all/libraries/PHPExcel/PHPExcel.php';
+
+        // Create report
+        $objPHPExcel = new PHPExcel();
+
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("setCreator")
+            ->setLastModifiedBy("setLastModifiedBy")
+            ->setTitle("setTitle")
+            ->setSubject("setSubject")
+            ->setDescription("setDescription")
+            ->setKeywords("setKeywords")
+            ->setCategory("setCategory");
+
+        // Set default columns
+        $styleArray = array(
+            'font'  => array(
+                'bold'  => true,
+                'color' => array('rgb' => 'FFFFFF')
+            ),
+            'borders' => array(
+                'allborders' => array(
+                    'style' => \PHPExcel_Style_Border::BORDER_THIN
+                )
+            )
+        );
+
+        $sheet1 = $objPHPExcel->getActiveSheet(0);
+
+        foreach($header as $k=>$v) {
+
+            // Write Header
+            $sheet1->setCellValue($k.'1', $v);
+
+            // Set Column Width
+            if(isset($formatExcel['c_width'][$k])) {
+                $sheet1->getColumnDimension($k)->setWidth($formatExcel['c_width'][$k]);
+            } else {
+                $sheet1->getColumnDimension($k)->setAutoSize(true);
+            }
+        }
+
+        $sheet1->getStyle('A1:'.$sheet1->getHighestColumn().'1')->applyFromArray($styleArray);
+        // Set cell background color
+
+        /**
+         * Set cell background color
+        */
+        $objPHPExcel->getActiveSheet()->getStyle('A1:'.$sheet1->getHighestColumn().'1')->getFill()
+            ->applyFromArray(array('type' => \PHPExcel_Style_Fill::FILL_SOLID,
+                'startcolor' => array('rgb' => '0489B1')
+        ));
+
+        // Set Column Alignment
+        $sheet1->getStyle('A1:'.$sheet1->getHighestColumn().'1')->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+        return $objPHPExcel;
+    }
+
+
+    /**
+     * Download excel file
+     * @param $objPHPExcel
+     */
+    public static function __downloadExcelFile($objPHPExcel, $fileName = 'report.xls') {
+
+        $styleArray = array(
+            'borders' => array(
+                'allborders' => array(
+                    'style' => \PHPExcel_Style_Border::BORDER_THIN,
+                    'color' => array('rgb' => '333333')
+                )
+            )
+        );
+
+        $objPHPExcel->getActiveSheet()->getStyle(
+            'A1:' .
+            $objPHPExcel->getActiveSheet()->getHighestColumn() .
+            $objPHPExcel->getActiveSheet()->getHighestRow()
+        )->applyFromArray($styleArray);
+
+        // Rename worksheet
+        $objPHPExcel->getActiveSheet()->setTitle('Report');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Download file
+        ob_get_clean();
+        $response = new Response();
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', 'attachment;filename="'.$fileName.'"');
+        $response->headers->set('Cache-Control', 'max-age=0');
+        $response->sendHeaders();
+
+        // Do your stuff here
+        $writer = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        // This line will force the file to download
+        $writer->save('php://output');
+        exit();
+
+    }
+
+    public static function __export_to_excel ($data, $name ='') {
+        $_headers = array(
+            'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
+        ,'AA','AB','AC','AD','AE','AF','AG','AH','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
+        );
+        $headers = $data['headers'];
+        $arrHeaders = array();
+        foreach($headers as $key=>$value) {
+            $arrHeaders[$_headers[$key]]  = $value;
+        }
+
+        $objPHPExcel = self::__createExcelFile($arrHeaders);
+
+        $rowCount = 1;
+        $rows = $data['rows'];
+        foreach($rows as $item) {
+            $rowCount++;
+            foreach($item as $key=>$value) {
+                $objPHPExcel->getActiveSheet()->setCellValue($_headers[$key].$rowCount, $value);
+            }
+        }
+
+        self::__downloadExcelFile($objPHPExcel, $name);
+
     }
 
 }

@@ -53,7 +53,7 @@
 
 						<div class="col-xs-5">
 							<div id="dynamic-table_filter" class="dataTables_filter">
-								<label>Search:<input type="search" class="form-control input-sm" placeholder="" aria-controls="dynamic-table"></label>
+								<label>Search:<input type="search" id="search-keyword" name="key" value="{{ app.request.query.get("key") }}" class="form-control input-sm" placeholder="" aria-controls="dynamic-table"></label>
 							</div>
 						</div>
 
