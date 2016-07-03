@@ -66,6 +66,32 @@ class GlobalHelper{
         return $error_message;
     }
 
+    public static function __handle_param_order_in_url($value) {
+        $arr_order = array();
+        $explode = explode('|', $value);
+        if(!empty($explode)){
+            $arr_order = array(
+                'field' => $explode[0],
+                'by' => $explode[1]
+            );
+        }
+
+        return $arr_order;
+    }
+
+    public static function __handle_param_date_range_in_url($date_range){
+        $arr_date_range = array();
+        $explode_date = explode('-', $date_range);
+        if(!empty($explode_date)){
+            $arr_date_range = array(
+                'from' => (int)trim($explode_date[0]),
+                'to' => (int)trim($explode_date[1]),
+            );
+        }
+
+        return $arr_date_range;
+    }
+
     public static function __pagination($totalRows, $pageNum = 1, $pageSize, $limit = 3, $current_url = '') {
         settype($totalRows, "int");
         settype($pageSize, "int");

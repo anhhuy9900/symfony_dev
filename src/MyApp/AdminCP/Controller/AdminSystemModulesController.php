@@ -35,13 +35,15 @@ class AdminSystemModulesController extends Controller
     public function indexAction(Request $request)
     {
         $key = $request->query->get('key') ? GlobalHelper::__xss_clean_string($request->query->get('key')) : '';
+        $arr_order = $request->query->get('order') ? GlobalHelper::__handle_param_order_in_url($request->query->get('order')) : array('field'=>'id', 'by'=>'DESC');
+        $date_range = $request->query->get('date_range') ? GlobalHelper::__handle_param_date_range_in_url($request->query->get('date_range')) : array();
         $limit = $request->query->get('lm') ? (int)$request->query->get('lm') : 10;
         $page_offset = $request->query->get('p') ? (int)$request->query->get('p') : 0;
         $offset = $page_offset > 0 ? ($page_offset - 1) * $limit : $page_offset * $limit;
 
     	$repository = $this->getDoctrine()->getRepository('AdminCPBundle:AdminSystemModulesEntity');
         $total = $repository->_getTotalRecords($key);
-        $results = $repository->_getListRecords($limit, $offset, $key);
+        $results = $repository->_getListRecords($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
 
         if($request->query->get('report')){
             $this->_report_data($results);

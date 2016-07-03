@@ -9,4 +9,9 @@ services:
      arguments: ["@doctrine.orm.entity_manager"]
      calls:
             - [ setContainer, [ '@service_container' ]]
+   app.twig_extension:
+           class: MyApp\Twig\AppExtension
+           public: false
+           tags:
+               - { name: twig.extension }
 

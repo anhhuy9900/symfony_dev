@@ -56,14 +56,22 @@ class AdminSystemModulesRepository extends EntityRepository
         $em->flush();
     }
 
-    public function _getListRecords($offset, $limit, $key = ''){
+    public function _getListRecords($offset, $limit, $where = array(), $order = array('field'=>'id', 'by'=>'DESC')){
         $repository = $this->getEntityManager()->getRepository('AdminCPBundle:AdminSystemModulesEntity');
         $query = $repository->createQueryBuilder('pk');
         $query->select("pk");
-        if($key){
-            $query->where('pk.module_name LIKE :key')->setParameter('key', '%'.$key.'%');
+        $query->where('pk.id > 0');
+        if(!empty($where)){
+            if($where['key']){
+                $query->andWhere('pk.module_name LIKE :key')->setParameter('key', '%'.$where['key'].'%');
+            }
+            //dump($where['date_range']);die();
+            if($where['date_range']){
+                $query->andWhere('pk.updated_date >= :date_from')->setParameter('date_from', $where['date_range']['from']);
+                $query->andWhere('pk.updated_date <= :date_to')->setParameter('date_to', $where['date_range']['to']);
+            }
         }
-        $query->orderBy("pk.created_date", "DESC");
+        $query->orderBy("pk.".$order['field'], $order['by']);
         $query->setMaxResults($offset);
         $query->setFirstResult($limit);
         $result = $query->getQuery();

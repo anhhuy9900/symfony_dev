@@ -4,6 +4,7 @@ namespace MyApp\AdminCP\Service;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\HttpFoundation\Request;
 use MyApp\AdminCP\Entity\AdminLoginEntity;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -57,7 +58,7 @@ class AdminCPService extends Controller{
         $session = new Session();
 
         $valid = FALSE;
-        if($session->get('_security_secured_userad')){
+        if(!empty($session->get('_security_secured_userad'))){
             $valid = TRUE;
         }
 
