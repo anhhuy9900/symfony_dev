@@ -12,6 +12,7 @@ use MyApp\MyHelper\GlobalHelper;
 class AdminCPController extends Controller
 {
     private $admincp_service;
+    private $data;
     /**
      * Used as constructor
      */
@@ -20,16 +21,19 @@ class AdminCPController extends Controller
         parent::setContainer($container);
         $this->admincp_service = $this->container->get('app.admincp_service');
         $this->admincp_service->admin_CheckValidLogin();
+        $this->data = array(
+            'title' => 'Admin DasnhBoard'
+        );
     }
 
     /**
      * @Route("/", name="admincp_page")
      */
     public function indexAction(Request $request)
-    {   
-        //GlobalHelper::pr(1);
-        $data = array();
-        return $this->render('@admin/admin.html.twig', $data);
+    {
+
+        $this->data['title'] = 'Admin DasnhBoard';
+        return $this->render('@admin/admin.html.twig', $this->data);
     }
 
 

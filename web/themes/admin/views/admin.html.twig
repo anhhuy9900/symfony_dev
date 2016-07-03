@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta charset="utf-8" />
-    <title>{% block title %}Admin Dashboard {% endblock %}</title>
+    <title>{% block title %} {% if title is not empty %} {{ title }} {% endif %} {% endblock %}</title>
 
     <meta name="description" content="overview &amp; stats" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
@@ -469,14 +469,6 @@
                     <li class="active">Dashboard</li>
                 </ul><!-- /.breadcrumb -->
 
-                <div class="nav-search" id="nav-search">
-                    <form class="form-search">
-						<span class="input-icon">
-							<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
-							<i class="ace-icon fa fa-search nav-search-icon"></i>
-						</span>
-                    </form>
-                </div><!-- /.nav-search -->
             </div>
 
             <div class="page-content">
@@ -490,7 +482,7 @@
         <div class="footer-inner">
             <div class="footer-content">
 						<span class="bigger-120">
-							<span class="blue bolder">Ace</span>
+							<span class="blue bolder">Demo</span>
 							Application &copy; 2013-2014
 						</span>
 

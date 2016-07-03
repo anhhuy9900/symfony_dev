@@ -5,10 +5,10 @@
 <div class="page-header col-xs-12">
 	<div class="col-xs-6">
 		<h1>
-			Tables
+			Table
 			<small>
 				<i class="ace-icon fa fa-angle-double-right"></i>
-				Static &amp; Dynamic Tables
+				{{ title }}
 			</small>
 		</h1>
 
@@ -20,7 +20,7 @@
 		{% endif %}
 	</div>
 	<div class="col-xs-1 pull-right span6">
-		<a href="{{ path('admincp_system_modules_edit_page', {'id': 0}) }}" class="btn btn-app btn-primary no-radius">
+		<a href="{{ path('admincp_system_modules_create_page') }}" class="btn btn-app btn-primary no-radius">
 			<i class="ace-icon fa fa-pencil-square-o bigger-160"></i>
 			Add New
 		</a>

@@ -5,19 +5,20 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use MyApp\AdminCP\Entity\AdminSystemModulesEntity;
-use MyApp\AdminCP\Validation\AdminSystemModulesValidation;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use MyApp\MyHelper\GlobalHelper;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use MyApp\AdminCP\Entity\AdminSystemModulesEntity;
+use MyApp\AdminCP\Validation\AdminSystemModulesValidation;
+use MyApp\MyHelper\GlobalHelper;
 
 
 class AdminSystemModulesController extends Controller
 {
     private $admincp_service;
+    private $data;
 
     /**
      * Used as constructor
@@ -27,6 +28,9 @@ class AdminSystemModulesController extends Controller
         parent::setContainer($container);
         $this->admincp_service = $this->container->get('app.admincp_service');
         $this->admincp_service->admin_CheckValidLogin();
+        $this->data = array(
+            'title' => 'Manage System Modules'
+        );
     }
 
     /**
@@ -35,8 +39,11 @@ class AdminSystemModulesController extends Controller
     public function indexAction(Request $request)
     {
         $key = $request->query->get('key') ? GlobalHelper::__xss_clean_string($request->query->get('key')) : '';
+
         $arr_order = $request->query->get('order') ? GlobalHelper::__handle_param_order_in_url($request->query->get('order')) : array('field'=>'id', 'by'=>'DESC');
+
         $date_range = $request->query->get('date_range') ? GlobalHelper::__handle_param_date_range_in_url($request->query->get('date_range')) : array();
+
         $limit = $request->query->get('lm') ? (int)$request->query->get('lm') : 10;
         $page_offset = $request->query->get('p') ? (int)$request->query->get('p') : 0;
         $offset = $page_offset > 0 ? ($page_offset - 1) * $limit : $page_offset * $limit;
@@ -51,11 +58,31 @@ class AdminSystemModulesController extends Controller
 
         $pagination = GlobalHelper::__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_system_modules_page'));
 
-        $data = array(
-        	'results' => $results,
-        	'pagination' => $pagination
-        );
-        return $this->render('@admin/system-modules/list.html.twig', $data);
+        $this->data['results'] = $results;
+        $this->data['pagination'] = $pagination;
+
+        return $this->render('@admin/system-modules/list.html.twig', $this->data);
+    }
+
+    /**
+     * @Route("/system-modules/create", name="admincp_system_modules_create_page")
+     */
+    public function createAction(Request $request)
+    {
+        $id = 0;
+        $handle_data = self::handle_form_data($id, $request);
+
+        if($handle_data['success']){
+            $request->getSession()->getFlashBag()->add('message_data', 'Created record success!');
+            $url = $this->generateUrl('admincp_system_modules_page');
+            return $this->redirect($url, 301);
+        }
+
+        $this->data['form'] = $handle_data['form']->createView();
+        $this->data['form_errors'] = $handle_data['form_errors'];
+
+        return $this->render('@admin/system-modules/edit.html.twig', $this->data);
+
     }
 
     /**
@@ -63,6 +90,46 @@ class AdminSystemModulesController extends Controller
      */
     public function editAction($id, Request $request)
     {
+        $handle_data = self::handle_form_data($id, $request);
+
+        if($handle_data['success']){
+            $request->getSession()->getFlashBag()->add('message_data', 'Updated record success!');
+            $url = $this->generateUrl('admincp_system_modules_page');
+            return $this->redirect($url, 301);
+        }
+
+        $this->data['form'] = $handle_data['form']->createView();
+        $this->data['form_errors'] = $handle_data['form_errors'];
+
+        return $this->render('@admin/system-modules/edit.html.twig', $this->data);
+    }
+
+    /**
+     * @Route("/system-modules/delete/{id}", name="admincp_system_modules_delete_page")
+     */
+    public function deleteAction($id , Request $request)
+    {
+        if($id > 0){
+            $em = $this->getDoctrine()->getEntityManager();
+            $check_exist_record = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->find($id);
+            if($check_exist_record){
+                $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->_delete_record_DB($id);
+
+                $request->getSession()->getFlashBag()->add('message_data', 'Deleted record success!');
+            }
+
+            $url = $this->generateUrl('admincp_system_modules_page');
+            return $this->redirect($url, 301);
+            exit();
+        }
+
+        return $this->render();
+    }
+
+    /**
+     * This function Handle create vs update data including handle and handle record in database
+     */
+    private function handle_form_data($id, $request){
         $em = $this->getDoctrine()->getEntityManager();
         $result_data = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->find($id);
 
@@ -112,6 +179,7 @@ class AdminSystemModulesController extends Controller
         $form->handleRequest($request);
 
         $form_errors = '';
+        $success = FALSE;
         if ($form->isSubmitted() && $form->isValid()) {
             $validation = new AdminSystemModulesValidation();
 
@@ -125,71 +193,35 @@ class AdminSystemModulesController extends Controller
 
             $form_errors = GlobalHelper::getErrorMessages($errors);
             if(!$form_errors){
-               $em = $this->getDoctrine()->getEntityManager();
+                $em = $this->getDoctrine()->getEntityManager();
                 if($data['id'] > 0){
+                    /* Update record */
                     $id = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->_update_record_DB($data);
-                    if($id){
-                        $request->getSession()->getFlashBag()->add('message_data', 'Updated record success!');
-                    }
                 } else {
+                    /* Create new record */
                     $id = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->_create_record_DB($data);
-                    if($id){
-                        $request->getSession()->getFlashBag()->add('message_data', 'Created record success!');
-                    }
                 }
 
-                $url = $this->generateUrl('admincp_system_modules_page');
-                return $this->redirect($url, 301);
-
+                $success = TRUE;
             }
         }
 
-        $data = array(
-            'form' => $form->createView(),
-            'form_errors' => $form_errors
+        $handle_data = array(
+            'form' => $form,
+            'form_errors' => $form_errors,
+            'success' => $success
         );
-        return $this->render('@admin/system-modules/edit.html.twig', $data);
+
+        return $handle_data;
     }
 
     /**
-     * @Route("/system-modules/create", name="admincp_system_modules_create_page")
-     */
-    public function createAction($id, Request $request)
-    {
-
-
-    }
-
-    /**
-     * @Route("/system-modules/delete/{id}", name="admincp_system_modules_delete_page")
-     */
-    public function deleteAction($id , Request $request)
-    {
-        if($id > 0){
-            $em = $this->getDoctrine()->getEntityManager();
-            $check_exist_record = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->find($id);
-            if($check_exist_record){
-                $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->_delete_record_DB($id);
-
-                $request->getSession()->getFlashBag()->add('message_data', 'Deleted record success!');
-            }
-
-            $url = $this->generateUrl('admincp_system_modules_page');
-            return $this->redirect($url, 301);
-            exit();
-        }
-        return $this->render();
-    }
-
-    /**
-     * Report data into file excel.
-     *
+     * Report data into file excel
      */
     private function _report_data($arrData = array())
     {
 
         $file_name = 'List-Modules-' . date('Ymd') . '.xlsx';
-
 
         // Create excel file
         $header = array();
