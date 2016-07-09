@@ -3,25 +3,23 @@ namespace MyApp\AdminCP\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
-use MyApp\AdminCP\Entity\AdminSystemModulesEntity;
+use MyApp\AdminCP\Entity\AdminSystemRolesEntity;
 
 
 /**
- * @ORM\Table(name="system_modules")
- * @ORM\Entity(repositoryClass="AdminSystemModulesRepository")
+ * @ORM\Table(name="system_roles")
+ * @ORM\Entity(repositoryClass="AdminSystemRolesRepository")
  * @ORM\HasLifecycleCallbacks()
  */
-class AdminSystemModulesRepository extends EntityRepository
+class AdminSystemRolesRepository extends EntityRepository
 {
 
     public function _create_record_DB($data)
     {
-        $entity = new AdminSystemModulesEntity();
-        $entity->setParentID($data['parent_id']);
-        $entity->setModule_Name($data['module_name']);
-        $entity->setModule_Alias($data['module_alias']);
-        $entity->setModule_Status($data['module_status']);
-        $entity->setModule_Order($data['module_order']);
+        $entity = new AdminSystemRolesEntity();
+        $entity->setRole_Name($data['role_name']);
+        $entity->setRole_Type($data['role_type']);
+        $entity->setRole_Status($data['role_status']);
         $entity->setUpdated_Date(time());
         $entity->setCreated_Date(time());
 
@@ -35,13 +33,11 @@ class AdminSystemModulesRepository extends EntityRepository
     public function _update_record_DB($data)
     {
         $em = $this->getEntityManager();
-        $entity = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->find($data['id']);
+        $entity = $em->getRepository('AdminCPBundle:AdminSystemRolesEntity')->find($data['id']);
 
-        $entity->setParentID($data['parent_id']);
-        $entity->setModule_Name($data['module_name']);
-        $entity->setModule_Alias($data['module_alias']);
-        $entity->setModule_Status($data['module_status']);
-        $entity->setModule_Order((int)$data['module_order']);
+        $entity->setRole_Name($data['role_name']);
+        $entity->setRole_Type($data['role_type']);
+        $entity->setRole_Status($data['role_status']);
         $entity->setUpdated_Date(time());
 
         $em->flush();
@@ -51,19 +47,19 @@ class AdminSystemModulesRepository extends EntityRepository
 
     public function _delete_record_DB($id){
         $em = $this->getEntityManager();
-        $entity = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->findOneBy(array('id'=>$id));
+        $entity = $em->getRepository('AdminCPBundle:AdminSystemRolesEntity')->findOneBy(array('id'=>$id));
         $em->remove($entity);
         $em->flush();
     }
 
     public function _getListRecords($offset, $limit, $where = array(), $order = array('field'=>'id', 'by'=>'DESC')){
-        $repository = $this->getEntityManager()->getRepository('AdminCPBundle:AdminSystemModulesEntity');
+        $repository = $this->getEntityManager()->getRepository('AdminCPBundle:AdminSystemRolesEntity');
         $query = $repository->createQueryBuilder('pk');
         $query->select("pk");
         $query->where('pk.id > 0');
         if(!empty($where)){
             if($where['key']){
-                $query->andWhere('pk.module_name LIKE :key')->setParameter('key', '%'.$where['key'].'%');
+                $query->andWhere('pk.role_name LIKE :key')->setParameter('key', '%'.$where['key'].'%');
             }
             //dump($where['date_range']);die();
             if($where['date_range']){
@@ -80,15 +76,25 @@ class AdminSystemModulesRepository extends EntityRepository
     }
 
     public function _getTotalRecords($key = ''){
-        $repository = $this->getEntityManager()->getRepository('AdminCPBundle:AdminSystemModulesEntity');
+        $repository = $this->getEntityManager()->getRepository('AdminCPBundle:AdminSystemRolesEntity');
         $query = $repository->createQueryBuilder('pk');
         $query->select('COUNT(pk.id)');
         if($key){
-            $query->where('pk.module_name LIKE :key')->setParameter('key', '%'.$key.'%');
+            $query->where('pk.role_name LIKE :key')->setParameter('key', '%'.$key.'%');
         }
         $total = $query->getQuery()->getSingleScalarResult();
 
         return $total;
+    }
+
+    public function _getListModules(){
+        $repository = $this->getEntityManager()->getRepository('AdminCPBundle:AdminSystemModulesEntity');
+        $query = $repository->createQueryBuilder('pk');
+        $query->select('pk.id, pk.module_name');
+        $query->where('pk.module_status = 1');
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 
 }

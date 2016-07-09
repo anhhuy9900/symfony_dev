@@ -184,9 +184,9 @@ class AdminSystemModulesController extends Controller
             $validation = new AdminSystemModulesValidation();
 
             $data = $form->getData();
-            $validation->module_name = $data['module_name'];;
-            $validation->module_alias = $data['module_alias'];;
-            $validation->module_order = (int)$data['module_order'];;
+            $validation->module_name = $data['module_name'];
+            $validation->module_alias = $data['module_alias'];
+            $validation->module_order = (int)$data['module_order'];
 
             $validator = $this->get('validator');
             $errors = $validator->validate($validation);
