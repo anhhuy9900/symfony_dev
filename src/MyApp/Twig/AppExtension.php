@@ -9,12 +9,23 @@ class AppExtension extends \Twig_Extension
         return array(
             new \Twig_SimpleFilter('__strpos', array($this, '__strposFilter')),
             new \Twig_SimpleFilter('__getLinkOrder', array($this, '__getLinkOrderFilter')),
+            new \Twig_SimpleFilter('__vardump', array($this, '__vardumpFilter')),
         );
     }
 
     public function __strposFilter($value, $type='')
     {
         return strpos($value, $type);
+    }
+
+    public function __vardumpFilter($value, $type = 0)
+    {
+        print '<pre>';
+        print_r($value);
+        print '</pre>';
+        if($type){
+            die();
+        }
     }
 
     public function __getLinkOrderFilter($url, $field_type = 'id|DESC')

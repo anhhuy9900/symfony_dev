@@ -72,4 +72,9 @@ class AdminCPService extends Controller{
         }
 
     }
+
+    public function encodePassword($raw, $salt)
+    {
+        return hash('sha256', $salt . $raw); // Custom function for encrypt
+    }
 }

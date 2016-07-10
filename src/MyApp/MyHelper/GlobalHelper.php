@@ -312,4 +312,28 @@ class GlobalHelper{
 
     }
 
+    public static function __convert_array_result_selectbox($data, $fields = array()){
+        $arr_values = array(
+            0 => 'Select Value'
+        );
+        if(!empty($data)){
+            foreach($data as $value){
+                $value = (object)$value;
+                $arr_values[$value->$fields['key']] = $value->$fields['value'];
+            }
+        }
+        return $arr_values;
+    }
+
+    public static function __convert_array_result($data, $fields = array()){
+        $arr_values = array();
+        if(!empty($data)){
+            foreach($data as $value){
+                $value = (object)$value;
+                $arr_values[$value->$fields['key']] = $value->$fields['value'];
+            }
+        }
+        return $arr_values;
+    }
+
 }
