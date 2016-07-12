@@ -6,13 +6,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use MyApp\AdminCP\Entity\AdminLoginEntity;
+//use MyApp\AdminCP\Repository\AdminCPRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use MyApp\MyHelper\GlobalHelper;
 
 class AdminCPController extends Controller
 {
-    private $admincp_service;
-    private $data;
+    public $admincp_service;
+    public $data;
     /**
      * Used as constructor
      */
@@ -22,7 +23,8 @@ class AdminCPController extends Controller
         $this->admincp_service = $this->container->get('app.admincp_service');
         $this->admincp_service->admin_CheckValidLogin();
         $this->data = array(
-            'title' => 'Admin DasnhBoard'
+            'title' => 'Admin DasnhBoard',
+            'left_menu' => $this->admincp_service->_lists_modules_left_theme(0)
         );
     }
 
@@ -31,7 +33,6 @@ class AdminCPController extends Controller
      */
     public function indexAction(Request $request)
     {
-
         $this->data['title'] = 'Admin DasnhBoard';
         return $this->render('@admin/admin.html.twig', $this->data);
     }

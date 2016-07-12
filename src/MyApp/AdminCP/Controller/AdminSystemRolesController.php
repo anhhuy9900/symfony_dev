@@ -3,6 +3,7 @@ namespace MyApp\AdminCP\Controller;
 
 use MyProject\Proxies\__CG__\OtherProject\Proxies\__CG__\stdClass;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use MyApp\AdminCP\Controller\AdminCPController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,10 +17,8 @@ use MyApp\AdminCP\Validation\AdminSystemRolesValidation;
 use MyApp\MyHelper\GlobalHelper;
 
 
-class AdminSystemRolesController extends Controller
+class AdminSystemRolesController extends AdminCPController
 {
-    private $admincp_service;
-    private $data;
 
     /**
      * Used as constructor
@@ -27,11 +26,7 @@ class AdminSystemRolesController extends Controller
     public function setContainer(ContainerInterface $container = null)
     {
         parent::setContainer($container);
-        $this->admincp_service = $this->container->get('app.admincp_service');
-        $this->admincp_service->admin_CheckValidLogin();
-        $this->data = array(
-            'title' => 'Manage System Roles'
-        );
+        $this->data['title'] = 'Manage System Roles';
     }
 
     /**

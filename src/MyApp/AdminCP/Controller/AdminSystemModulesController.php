@@ -2,6 +2,7 @@
 namespace MyApp\AdminCP\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use MyApp\AdminCP\Controller\AdminCPController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,10 +16,8 @@ use MyApp\AdminCP\Validation\AdminSystemModulesValidation;
 use MyApp\MyHelper\GlobalHelper;
 
 
-class AdminSystemModulesController extends Controller
+class AdminSystemModulesController extends AdminCPController
 {
-    private $admincp_service;
-    private $data;
 
     /**
      * Used as constructor
@@ -26,11 +25,7 @@ class AdminSystemModulesController extends Controller
     public function setContainer(ContainerInterface $container = null)
     {
         parent::setContainer($container);
-        $this->admincp_service = $this->container->get('app.admincp_service');
-        $this->admincp_service->admin_CheckValidLogin();
-        $this->data = array(
-            'title' => 'Manage System Modules'
-        );
+        $this->data['title'] = 'Manage System Modules';
     }
 
     /**
@@ -142,8 +137,10 @@ class AdminSystemModulesController extends Controller
             'module_status' => ( $result_data ? $result_data->getModule_Status() : 0 )
         );
 
-        $defaultData = array('message' => 'Type your message here');
+        $get_recursive_modules = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->_get_recursive_modules(0);
+        $list_recursive_modules = GlobalHelper::__convert_array_result_selectbox($get_recursive_modules, array('key'=>'id', 'value'=>'module_name'));
 
+        $defaultData = array('message' => 'Type your message here');
         $form = $this->createFormBuilder($defaultData)
             //->setAction($this->generateUrl('admincp_system_modules_edit_page'))
             ->add('id', HiddenType::class, array(
@@ -151,7 +148,7 @@ class AdminSystemModulesController extends Controller
             ))
             ->add('parent_id', ChoiceType::class, array(
                 'label' => 'Parent',
-                'choices' => array(0 => 'Unpblish', 1 => 'Publish'),
+                'choices' =>$list_recursive_modules,
                 'data' => $fields_value['parent_id']
             ))
             ->add('module_name', TextType::class, array(

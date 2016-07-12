@@ -91,4 +91,27 @@ class AdminSystemModulesRepository extends EntityRepository
         return $total;
     }
 
+    public function _get_recursive_modules($parent_id, &$arr_menu = array()){
+
+        $repository = $this->getEntityManager()->getRepository('AdminCPBundle:AdminSystemModulesEntity');
+        $query = $repository->createQueryBuilder('pk');
+        $query->select("pk.id, pk.module_name");
+        $query->where('pk.module_status = 1');
+        $query->andWhere('pk.parent_id = :parent_id')->setParameter('parent_id', $parent_id);
+        $results = $query->getQuery()->getResult();
+        if(!empty($results)){
+            foreach($results as $value){
+                $str = '';
+                if($parent_id > 0){
+                    $str .= '--';
+                }
+                $value['module_name'] = $str.$value['module_name'];
+                $arr_menu[] = $value;
+                $this->_get_recursive_modules($value['id'], $arr_menu);
+            }
+        }
+
+        return $arr_menu;
+    }
+
 }
