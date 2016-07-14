@@ -24,6 +24,7 @@ class AdminCPController extends Controller
         $this->admincp_service->admin_CheckValidLogin();
         $this->data = array(
             'title' => 'Admin DasnhBoard',
+            'user_admin' => $this->admincp_service->admin_UserAdminInfo(),
             'left_menu' => $this->admincp_service->_lists_modules_left_theme(0)
         );
     }
@@ -32,7 +33,8 @@ class AdminCPController extends Controller
      * @Route("/", name="admincp_page")
      */
     public function indexAction(Request $request)
-    {
+    {   
+
         $this->data['title'] = 'Admin DasnhBoard';
         return $this->render('@admin/admin.html.twig', $this->data);
     }

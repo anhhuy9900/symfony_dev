@@ -10,7 +10,7 @@ use Doctrine\ORM\EntityRepository;
  * @ORM\Table(name="system_users")
  * @ORM\Entity(repositoryClass="MyApp\AdminCP\Repository\AdminCPRepository")
  */
-class AdminLoginEntity {
+class AdminAuthenticationEntity {
     /**
      * @ORM\Column(type="integer")
      * @ORM\id

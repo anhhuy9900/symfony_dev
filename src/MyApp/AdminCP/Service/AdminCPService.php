@@ -5,7 +5,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Request;
-use MyApp\AdminCP\Entity\AdminLoginEntity;
+use MyApp\AdminCP\Entity\AdminAuthenticationEntity;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -22,7 +22,7 @@ class AdminCPService extends Controller{
     function admin_checkValidUser($username, $password)
     {
         $password = $this->encodePassword('MyPass', $password);
-        $repository = $this->em->getRepository('AdminCPBundle:AdminLoginEntity');
+        $repository = $this->em->getRepository('AdminCPBundle:AdminAuthenticationEntity');
         $query = $repository->createQueryBuilder('pk')
         ->where('pk.username = :username')
         ->andWhere('pk.password = :password')
@@ -45,12 +45,13 @@ class AdminCPService extends Controller{
         $firewall = 'secured_userad';
         $token = new UsernamePasswordToken('admin', null, $firewall, array('ROLE_ADMIN'));
 
-        /*$user = array(
+        $user = array(
             'username' => $data['username'],
             'ad_token' => $token,
-        );*/
+        );
 
         $session->set('_security_'.$firewall, serialize($token));
+        $session->set('_userad_authentication', $user);
         $session->save();
     }
 
@@ -71,6 +72,12 @@ class AdminCPService extends Controller{
             exit();
         }
 
+    }
+
+    function admin_UserAdminInfo(){
+        $session = new Session();
+        $user = $session->get('_userad_authentication');
+        return $user;
     }
 
     public function encodePassword($raw, $salt)
