@@ -40,6 +40,20 @@
     <script src="{{ asset('themes/admin/assets/js/html5shiv.min.js') }}"></script>
     <script src="{{ asset('themes/admin/assets/js/respond.min.js') }}"></script>
     <![endif]-->
+
+    <!--[if !IE]> -->
+    <script src="{{ asset('themes/admin/assets/js/jquery.2.1.1.min.js') }}"></script>
+
+    <!-- <![endif]-->
+
+    <!--[if IE]>
+    <script src="{{ asset('themes/admin/assets/js/jquery.1.11.1.min.js') }}"></script>
+    <![endif]-->
+
+    <script type="text/javascript">
+        var path_url_assset = '{{ asset('themes/admin/assets/') }}';
+    </script>
+
 </head>
 
 <body class="no-skin">
@@ -274,19 +288,9 @@
 <!-- basic scripts -->
 
 <!--[if !IE]> -->
-<script src="{{ asset('themes/admin/assets/js/jquery.2.1.1.min.js') }}"></script>
-
-<!-- <![endif]-->
-
-<!--[if IE]>
-<script src="{{ asset('themes/admin/assets/js/jquery.1.11.1.min.js') }}"></script>
-<![endif]-->
-
-<!--[if !IE]> -->
 <script type="text/javascript">
     window.jQuery || document.write("<script src='{{ asset('themes/admin/assets/js/jquery.min.js') }}'>"+"<"+"/script>");
 </script>
-
 <!-- <![endif]-->
 
 <!--[if IE]>
@@ -297,9 +301,14 @@
 <script type="text/javascript">
     if('ontouchstart' in document.documentElement) document.write("<script src='{{ asset('themes/admin/assets/js/jquery.mobile.custom.min.js') }}'>"+"<"+"/script>");
 </script>
+
+<!-- bootstrap scripts -->
 <script src="{{ asset('themes/admin/assets/js/bootstrap.min.js') }}"></script>
 
-<!-- page specific plugin scripts -->
+<!-- ckeditor -->
+<script src="{{ asset('themes/admin/assets/js/ckeditor/ckeditor.js') }}"></script>
+
+<!-- end ckeditor -->
 
 <!--[if lte IE 8]>
 <script src="{{ asset('themes/admin/assets/js/excanvas.min.js') }}"></script>
@@ -314,6 +323,11 @@
 <!-- ace scripts -->
 <script src="{{ asset('themes/admin/assets/js/ace-elements.min.js') }}"></script>
 <script src="{{ asset('themes/admin/assets/js/ace.min.js') }}"></script>
+
+<!-- plupload scripts -->
+<script src="{{ asset('themes/admin/assets/js/plupload/plupload.full.min.js') }}"></script>
+<script src="{{ asset('themes/admin/assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js') }}"></script>
+
 <script src="{{ asset('themes/admin/assets/js/admin-main.js') }}"></script>
 
 <!-- inline scripts related to this page -->

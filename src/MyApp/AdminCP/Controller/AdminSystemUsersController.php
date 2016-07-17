@@ -30,7 +30,7 @@ class AdminSystemUsersController extends AdminCPController
     }
 
     /**
-     * @Route("/system-users", name="admincp_system_users_page")
+     * @Route("/admind/system-users", name="admincp_system_users_page")
      */
     public function indexAction(Request $request)
     {
@@ -61,7 +61,7 @@ class AdminSystemUsersController extends AdminCPController
     }
 
     /**
-     * @Route("/system-users/create", name="admincp_system_users_create_page")
+     * @Route("/admind/system-users/create", name="admincp_system_users_create_page")
      */
     public function createAction(Request $request)
     {
@@ -82,7 +82,7 @@ class AdminSystemUsersController extends AdminCPController
     }
 
     /**
-     * @Route("/system-users/edit/{id}", name="admincp_system_users_edit_page")
+     * @Route("/admind/system-users/edit/{id}", name="admincp_system_users_edit_page")
      */
     public function editAction($id, Request $request)
     {
@@ -101,7 +101,7 @@ class AdminSystemUsersController extends AdminCPController
     }
 
     /**
-     * @Route("/system-users/delete/{id}", name="admincp_system_users_delete_page")
+     * @Route("/admind/system-users/delete/{id}", name="admincp_system_users_delete_page")
      */
     public function deleteAction($id , Request $request)
     {

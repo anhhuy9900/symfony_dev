@@ -29,7 +29,7 @@ class AdminSystemModulesController extends AdminCPController
     }
 
     /**
-     * @Route("/system-modules", name="admincp_system_modules_page")
+     * @Route("/admind/system-modules", name="admincp_system_modules_page")
      */
     public function indexAction(Request $request)
     {
@@ -60,7 +60,7 @@ class AdminSystemModulesController extends AdminCPController
     }
 
     /**
-     * @Route("/system-modules/create", name="admincp_system_modules_create_page")
+     * @Route("/admind/system-modules/create", name="admincp_system_modules_create_page")
      */
     public function createAction(Request $request)
     {
@@ -81,7 +81,7 @@ class AdminSystemModulesController extends AdminCPController
     }
 
     /**
-     * @Route("/system-modules/edit/{id}", name="admincp_system_modules_edit_page")
+     * @Route("/admind/system-modules/edit/{id}", name="admincp_system_modules_edit_page")
      */
     public function editAction($id, Request $request)
     {
@@ -100,7 +100,7 @@ class AdminSystemModulesController extends AdminCPController
     }
 
     /**
-     * @Route("/system-modules/delete/{id}", name="admincp_system_modules_delete_page")
+     * @Route("/admind/system-modules/delete/{id}", name="admincp_system_modules_delete_page")
      */
     public function deleteAction($id , Request $request)
     {
@@ -157,7 +157,8 @@ class AdminSystemModulesController extends AdminCPController
             ))
             ->add('module_alias', TextType::class, array(
                 'label' => 'Module Alias',
-                'data' => $fields_value['module_alias']
+                'data' => $fields_value['module_alias'],
+                'required' => FALSE
             ))
             ->add('module_order', TextType::class, array(
                 'label' => 'Module Order',
@@ -190,7 +191,6 @@ class AdminSystemModulesController extends AdminCPController
 
             $form_errors = GlobalHelper::getErrorMessages($errors);
             if(!$form_errors){
-                $em = $this->getDoctrine()->getEntityManager();
                 if($data['id'] > 0){
                     /* Update record */
                     $id = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->_update_record_DB($data);

@@ -28,7 +28,7 @@ class AdminAuthenticationController extends Controller
     }
 
     /**
-     * @Route("/login", name="admincp_login_page")
+     * @Route("/admind/login", name="admincp_login_page")
      */
     public function loginAction(Request $request)
     {
@@ -80,7 +80,7 @@ class AdminAuthenticationController extends Controller
     }
 
     /**
-     * @Route("/logout", name="admincp_logout_page")
+     * @Route("/admind/logout", name="admincp_logout_page")
      */
     public function logoutAction(Request $request)
     {  

@@ -30,7 +30,7 @@ class AdminSystemRolesController extends AdminCPController
     }
 
     /**
-     * @Route("/system-roles", name="admincp_system_roles_page")
+     * @Route("/admind/system-roles", name="admincp_system_roles_page")
      */
     public function indexAction(Request $request)
     {
@@ -61,7 +61,7 @@ class AdminSystemRolesController extends AdminCPController
     }
 
     /**
-     * @Route("/system-roles/create", name="admincp_system_roles_create_page")
+     * @Route("/admind/system-roles/create", name="admincp_system_roles_create_page")
      */
     public function createAction(Request $request)
     {
@@ -83,7 +83,7 @@ class AdminSystemRolesController extends AdminCPController
     }
 
     /**
-     * @Route("/system-roles/edit/{id}", name="admincp_system_roles_edit_page")
+     * @Route("/admind/system-roles/edit/{id}", name="admincp_system_roles_edit_page")
      */
     public function editAction($id, Request $request)
     {
@@ -103,7 +103,7 @@ class AdminSystemRolesController extends AdminCPController
     }
 
     /**
-     * @Route("/system-roles/delete/{id}", name="admincp_system_roles_delete_page")
+     * @Route("/admind/system-roles/delete/{id}", name="admincp_system_roles_delete_page")
      */
     public function deleteAction($id , Request $request)
     {
@@ -173,7 +173,6 @@ class AdminSystemRolesController extends AdminCPController
 
             $form_errors = GlobalHelper::getErrorMessages($errors);
             if(!$form_errors){
-                $em = $this->getDoctrine()->getEntityManager();
                 $data['role_type'] = self::_filter_permission_role_type($request->request->get('role_type'));
                 if($data['id'] > 0){
                     /* Update record */

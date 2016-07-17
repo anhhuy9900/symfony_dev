@@ -1,13 +1,9 @@
-app:
-    resource: "@AppBundle/Controller/"
-    type:     annotation
-
 myapp_admincp:
     resource: "@AdminCPBundle/Controller/"
     type:     annotation
-    prefix:   /admind
+    prefix:   /
 
-myapp:
+myapp_news:
     resource: "@NewsBundle/Controller/"
     type:     annotation
-    prefix:   /abc
+    prefix:   /
