@@ -186,8 +186,12 @@ class AdminNewsController extends AdminCPController
                 'choices' => array( 0 => 'Unpblish', 1 => 'Publish')
             ))
             ->add('lists_thumb', TextareaType::class, array(
-                'label' => 'Description',
-                'data' => (!empty($list_galleries) ? json_encode($list_galleries) : '')
+                'data' => (!empty($list_galleries) ? json_encode($list_galleries) : ''),
+                'required' => FALSE
+            ))
+            ->add('lists_del_file', TextareaType::class, array(
+                'data' => '',
+                'required' => FALSE
             ))
             ->add('send', SubmitType::class, array(
                 'label' => 'Submit',
@@ -228,6 +232,14 @@ class AdminNewsController extends AdminCPController
                     $files_gallery = json_decode($data['lists_thumb']);
                     foreach ($files_gallery as $key => $value) {
                         $this->__save_files_data($id, 'news', $value->file);
+                    }
+                }
+
+                //delete new files
+                if(!empty($data['lists_del_file'])){
+                    $lists_del_file = json_decode($data['lists_del_file']);
+                    foreach ($lists_del_file as $key_del_file => $del_file) {
+                        $this->__delete_files_data($id, 'news', $del_file->id);
                     }
                 }
 
@@ -304,25 +316,57 @@ class AdminNewsController extends AdminCPController
             $get_file_exists = $query->getQuery()->getResult();
 
             if(empty($get_file_exists)) {
-                $file_path_gallery = $service->__creat_folder_upload($gallery_name);
-                $file_name_gallery = $service::__random_file_name(15).'_'.rand(11111,99999).time().'.jpg';
-                $newfile = $file_path_gallery['folder_path'].$file_name_gallery;
-                move_uploaded_file($this->getParameter('upload_dir').'/'.$file, $newfile);
+                $file_gallery = $service->__creat_folder_upload($gallery_name);
+                $file_gallery_name = $service::__random_file_name(15).'_'.rand(11111,99999).time().'.jpg';
+                $newfile = $file_gallery['path_url'].$file_gallery_name;
+
+                copy($this->getParameter('upload_dir').'/'.$file, $file_gallery['folder_path'].$file_gallery_name);
                 unlink($this->getParameter('upload_dir').'/'.$file);
 
                 //Create file in database
                 $entity = new FilesManagedEntity();
                 $entity->setTypeID($type_id);
                 $entity->setType($type);
-                $entity->setFile($file);
+                $entity->setFile($newfile);
                 $entity->setStatus(1);
                 $entity->setCreated_Date(time());
-
                 $em = $this->getDoctrine()->getEntityManager();
                 $em->persist($entity);
                 $em->flush();
 
             }
         }
+    }
+
+    /**
+     * This function use delete file to database
+     */
+    public function __delete_files_data($type_id, $type = 'default', $file_id = 0){
+
+        if(!empty($file_id)){
+
+            $entity = $this->getDoctrine()->getEntityManager()->getRepository('NewsBundle:FilesManagedEntity');
+            $query = $entity->createQueryBuilder('pk');
+            $query->select("pk");
+            $query->where('pk.type = :type');
+            $query->andWhere('pk.type_id = :type_id');
+            $query->andWhere('pk.id = :id');
+            $query->setParameter('type', $type);
+            $query->setParameter('type_id', $type_id);
+            $query->setParameter('id', $file_id);
+            $get_file = $query->getQuery()->getSingleResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
+
+            if(!empty($get_file)) {
+                $get_file = (object)$get_file;
+                if(file_exists($this->getParameter('upload_dir').'/'.$get_file->file)){
+                    unlink($this->getParameter('upload_dir').'/'.$get_file->file);
+                }
+                $entity_delete = $entity->findOneBy(array('id' => $file_id));
+                $em = $this->getDoctrine()->getEntityManager();
+                $em->remove($entity_delete);
+                $em->flush();
+            }
+        }
+
     }
 }

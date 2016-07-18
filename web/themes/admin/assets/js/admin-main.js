@@ -23,9 +23,6 @@ var AdminMain = window.AdminMain || {};
             function(start, end, label){
                 var start_date = Date.parse(start) / 1000;
                 var end_date = Date.parse(end) / 1000;
-                //console.log(start.toLocaleString() + end.toLocaleString() + label);
-                console.log("start_date " + start_date);
-                console.log("end_date " + end_date);
                 if(start_date > 0 && end_date > 0){
                     var value = start_date + '-' + end_date;
                     var redirect_url = AdminMain.Func.generate_url_hande_filter('date_range', value);
@@ -159,7 +156,7 @@ var AdminMain = window.AdminMain || {};
                         {
                             var image_file = {
                                 'file' : data.file
-                            }
+                            };
                             var html_thumb ='';
                             if(data.file.length > 0){
                                 //$.each(data.files, function(i, file) {
@@ -177,7 +174,7 @@ var AdminMain = window.AdminMain || {};
 
                         AdminMain.Func.delete_item_lists_thumb_gallery(lists_thumb);
 
-                    },
+                    }
                 }
 
             });
@@ -185,17 +182,20 @@ var AdminMain = window.AdminMain || {};
             uploader_file.init();
         },
 
-        delete_item_lists_thumb_gallery : function(lists_thumb){
+        delete_item_lists_thumb_gallery : function(lists_thumb ){
             $(".thumb_uploaded .icon-delete").click(function(){
                 var lists_del_file = $(".lists_del_file").val() ? JSON.parse($(".lists_del_file").val()) : [];
                 var value = $(this).data('value');
-                if($(this).data('id')){
+                if($(this).data('id')) {
                     var id = $(this).data('id');
                     var del_file = {
                         'id' : id
-                    }
+                    };
                     lists_del_file.push(del_file);
                     $(".lists_del_file").val(JSON.stringify(lists_del_file));
+                }
+                if(!lists_thumb){
+                    lists_thumb = JSON.parse($(".lists_thumb").val());
                 }
 
                 AdminMain.Func.removeItem(lists_thumb, value);

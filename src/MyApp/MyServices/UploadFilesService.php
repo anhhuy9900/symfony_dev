@@ -25,15 +25,16 @@ class UploadFilesService extends Controller{
     }
 
     public function __upload_file_request($file, $type_name){
+        if($file){
+            $extension = $file->guessExtension(); // getting image extension
+            $fileName = $type_name.'_'.rand(11111,99999).time().'.jpg';
+            $var_path = $this->__creat_folder_upload($type_name);
 
-        $extension = $file->guessExtension(); // getting image extension
-        $fileName = $type_name.'_'.rand(11111,99999).time().'.jpg';
-        $var_path = $this->__creat_folder_upload($type_name);
+            $file->move( $var_path['folder_path'], $fileName);
+            $new_file = $var_path['path_url'].$fileName;
 
-        $file->move( $var_path['folder_path'], $fileName);
-        $new_file = $var_path['path_url'].$fileName;
-
-        return $new_file;
+            return $new_file;
+        }
     }
 
 
