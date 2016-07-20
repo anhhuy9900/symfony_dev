@@ -93,5 +93,15 @@ class AdminNewsRepository extends EntityRepository
         return $total;
     }
 
-
+    public function _getListTagsNews($type_id, $type = 'default'){
+        $repository = $this->getEntityManager()->getRepository('NewsBundle:TagsEntity');
+        $query = $repository->createQueryBuilder('pk');
+        $query->select("pk.id, pk.tag_name");
+        $query->where('pk.type = :type');
+        $query->andWhere('pk.type_id = :type_id');
+        $query->setParameter('type', $type);
+        $query->setParameter('type_id', $type_id);
+        $results = $query->getQuery()->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
+        return $results;
+    }
 }

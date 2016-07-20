@@ -74,13 +74,11 @@
 			</div>
 
 			<div class="form-group">
-				<label class="col-sm-3 control-label no-padding-right" for="form-field-tags">Tag input</label>
-
+				{{ form_label(form.tags, form.tags, {'label_attr': {'class': 'col-sm-3 control-label no-padding-right','for': 'form-field-tags'}}) }}
 				<div class="col-sm-9">
 					<div class="inline">
-						<div class="tags">
-							<input type="text" placeholder="Enter tags ...">
-						</div>
+						{{ form_widget(form.tags, {'attr': { 'placeholder': 'Enter tags ...'}}) }}
+						<textarea class="list_tags hide">{{ list_tags }}</textarea>
 					</div>
 				</div>
 			</div>

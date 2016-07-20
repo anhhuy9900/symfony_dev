@@ -14,6 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use MyApp\News\Entity\NewsEntity;
 use MyApp\News\Entity\FilesManagedEntity;
+use MyApp\News\Entity\TagsEntity;
 use MyApp\News\Validation\AdminNewsValidation;
 use MyApp\MyHelper\GlobalHelper;
 
@@ -78,6 +79,7 @@ class AdminNewsController extends AdminCPController
         $this->data['form_errors'] = $handle_data['form_errors'];
         $this->data['fields_value'] = $handle_data['fields_value'];
         $this->data['list_galleries'] = $handle_data['list_galleries'];
+        $this->data['list_tags'] = $handle_data['list_tags'];
 
         return $this->render('@admin/news/edit.html.twig', $this->data);
 
@@ -100,6 +102,7 @@ class AdminNewsController extends AdminCPController
         $this->data['form_errors'] = $handle_data['form_errors'];
         $this->data['fields_value'] = $handle_data['fields_value'];
         $this->data['list_galleries'] = $handle_data['list_galleries'];
+        $this->data['list_tags'] = $handle_data['list_tags'];
 
         return $this->render('@admin/news/edit.html.twig', $this->data);
     }
@@ -148,6 +151,9 @@ class AdminNewsController extends AdminCPController
         //Get list galleries
         $list_galleries = $this->global_service->__get_list_galleries($id, 'news');
 
+        //Get list tags
+        $list_tags = $em->getRepository('NewsBundle:NewsEntity')->_getListTagsNews($id, 'news');
+
         $defaultData = array();
         $form = $this->createFormBuilder($defaultData)
             //->setAction($this->generateUrl('admincp_news_edit_page'))
@@ -184,6 +190,11 @@ class AdminNewsController extends AdminCPController
                 'label' => 'Status',
                 'data' => $fields_value['status'],
                 'choices' => array( 0 => 'Unpblish', 1 => 'Publish')
+            ))
+            ->add('tags', TextType::class, array(
+                'label' => 'Tags input',
+                'data' =>  '',
+                'required' => FALSE
             ))
             ->add('lists_thumb', TextareaType::class, array(
                 'data' => (!empty($list_galleries) ? json_encode($list_galleries) : ''),
@@ -228,6 +239,8 @@ class AdminNewsController extends AdminCPController
                     $id = $em->getRepository('NewsBundle:NewsEntity')->_create_record_DB($data);
                 }
 
+                /* handle gallery images */
+                //create new files
                 if(!empty($data['lists_thumb'])){
                     $files_gallery = json_decode($data['lists_thumb']);
                     foreach ($files_gallery as $key => $value) {
@@ -242,6 +255,12 @@ class AdminNewsController extends AdminCPController
                         $this->__delete_files_data($id, 'news', $del_file->id);
                     }
                 }
+                /* End handle gallery images */
+
+                /* handle tags */
+                $this->_handle_tags_new($id, 'news', $data['tags']);
+                /* End handle tags */
+
 
                 $success = TRUE;
             }
@@ -252,7 +271,8 @@ class AdminNewsController extends AdminCPController
             'form_errors' => $form_errors,
             'success' => $success,
             'fields_value' => $fields_value,
-            'list_galleries' => $list_galleries
+            'list_galleries' => $list_galleries,
+            'list_tags' => (!empty($list_tags)) ? json_encode($list_tags): array()
         );
 
         return $handle_data;
@@ -324,18 +344,22 @@ class AdminNewsController extends AdminCPController
                 unlink($this->getParameter('upload_dir').'/'.$file);
 
                 //Create file in database
-                $entity = new FilesManagedEntity();
-                $entity->setTypeID($type_id);
-                $entity->setType($type);
-                $entity->setFile($newfile);
-                $entity->setStatus(1);
-                $entity->setCreated_Date(time());
+                $create = new FilesManagedEntity();
+                $create->setTypeID($type_id);
+                $create->setType($type);
+                $create->setFile($newfile);
+                $create->setStatus(1);
+                $create->setCreated_Date(time());
                 $em = $this->getDoctrine()->getEntityManager();
-                $em->persist($entity);
+                $em->persist($create);
                 $em->flush();
+
+                return TRUE;
 
             }
         }
+
+        return FALSE;
     }
 
     /**
@@ -365,8 +389,74 @@ class AdminNewsController extends AdminCPController
                 $em = $this->getDoctrine()->getEntityManager();
                 $em->remove($entity_delete);
                 $em->flush();
+
+                return TRUE;
             }
         }
 
+        return FALSE;
+
+    }
+
+    /**
+     * This function use create and update atgs for each news
+     */
+    public function _handle_tags_new($type_id, $type = 'default', $tags = ''){
+
+        if($tags){
+            $entity = $this->getDoctrine()->getRepository('NewsBundle:TagsEntity');
+            $list_tags = explode(',', $tags);
+            if(!empty($list_tags)){
+                foreach($list_tags as $tag){
+                    $query = $entity->createQueryBuilder('pk');
+                    $query->select("pk");
+                    $query->where('pk.type = :type');
+                    $query->andWhere('pk.type_id = :type_id');
+                    $query->andWhere('pk.tag_name = :tag_name');
+                    $query->setParameter('type', $type);
+                    $query->setParameter('type_id', $type_id);
+                    $query->setParameter('tag_name', $tag);
+                    $get_tag_exists = $query->getQuery()->getResult();
+
+                    if(empty($get_tag_exists)) {
+
+                        //Create tag in database
+                        $create = new TagsEntity();
+                        $create->setTypeID($type_id);
+                        $create->setType($type);
+                        $create->setTag_Name($tag);
+                        $create->setStatus(1);
+                        $create->setCreated_Date(time());
+                        $em = $this->getDoctrine()->getEntityManager();
+                        $em->persist($create);
+                        $em->flush();
+
+                    }
+                }
+            }
+
+            //delete tag if it isn't exists in list atgs
+            $query = $entity->createQueryBuilder('pk');
+            $query->select("pk");
+            $query->where('pk.type = :type');
+            $query->andWhere('pk.type_id = :type_id');
+            $query->andWhere($query->expr()->notIn('pk.tag_name', ':list_tags'));
+            $query->setParameter('type', $type);
+            $query->setParameter('type_id', $type_id);
+            $query->setParameter('list_tags', $list_tags);
+            $list_tags_delete = $query->getQuery()->getResult();
+            if(!empty($list_tags_delete)) {
+                foreach ($list_tags_delete as $tag) {
+                    $entity_delete = $entity->findOneBy(array('id' => $tag->getID()));
+                    $em = $this->getDoctrine()->getEntityManager();
+                    $em->remove($entity_delete);
+                    $em->flush();
+                }
+            }
+
+            return TRUE;
+        }
+
+        return FALSE;
     }
 }

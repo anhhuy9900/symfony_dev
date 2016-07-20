@@ -19,8 +19,7 @@ var AdminMain = window.AdminMain || {};
                     applyLabel: 'Apply',
                     cancelLabel: 'Cancel',
                 }
-            },
-            function(start, end, label){
+            }, function(start, end, label){
                 var start_date = Date.parse(start) / 1000;
                 var end_date = Date.parse(end) / 1000;
                 if(start_date > 0 && end_date > 0){
@@ -30,6 +29,44 @@ var AdminMain = window.AdminMain || {};
                 }
 
             });
+
+            var tag_input = $('#form_tags');
+            try{
+                tag_input.tag(
+                    {
+                        placeholder:tag_input.attr('placeholder'),
+                        //enable typeahead by specifying the source array
+                        //source: ace.vars['US_STATES'],//defined in ace.js >> ace.enable_search_ahead
+                        /**
+                         //or fetch data from database, fetch those that match "query"
+                         source: function(query, process) {
+						  $.ajax({url: 'remote_source.php?q='+encodeURIComponent(query)})
+						  .done(function(result_items){
+							process(result_items);
+						  });
+						}
+                         */
+                    }
+                )
+
+                //programmatically add a new
+                var $tag_obj = $('#form_tags').data('tag');
+                var list_tags = $(".list_tags").val() ? JSON.parse($(".list_tags").val()) : [];
+                if(list_tags.length > 0){
+                    for(var i in list_tags){
+                        console.log("list_tags : " + list_tags[i].tag_name);
+                        $tag_obj.add(list_tags[i].tag_name);
+                    }
+                }
+
+
+            }
+            catch(e) {
+                //display a textarea for old IE, because it doesn't support this plugin or another one I tried!
+                tag_input.after('<textarea id="'+tag_input.attr('id')+'" name="'+tag_input.attr('name')+'" rows="10">'+tag_input.val()+'</textarea>').remove();
+                //$('#form_tags').autosize({append: "\n"});
+            }
+
 
         },
 
