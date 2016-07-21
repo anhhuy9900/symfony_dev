@@ -14,7 +14,6 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use MyApp\AdminCP\Entity\AdminSystemUsersEntity;
 use MyApp\AdminCP\Validation\AdminSystemUsersValidation;
-use MyApp\MyHelper\GlobalHelper;
 
 
 class AdminSystemUsersController extends AdminCPController
@@ -34,11 +33,11 @@ class AdminSystemUsersController extends AdminCPController
      */
     public function indexAction(Request $request)
     {
-        $key = $request->query->get('key') ? GlobalHelper::__xss_clean_string($request->query->get('key')) : '';
+        $key = $request->query->get('key') ? $this->global_helper_service->__xss_clean_string($request->query->get('key')) : '';
 
-        $arr_order = $request->query->get('order') ? GlobalHelper::__handle_param_order_in_url($request->query->get('order')) : array('field'=>'id', 'by'=>'DESC');
+        $arr_order = $request->query->get('order') ? $this->global_helper_service->__handle_param_order_in_url($request->query->get('order')) : array('field'=>'id', 'by'=>'DESC');
 
-        $date_range = $request->query->get('date_range') ? GlobalHelper::__handle_param_date_range_in_url($request->query->get('date_range')) : array();
+        $date_range = $request->query->get('date_range') ? $this->global_helper_service->__handle_param_date_range_in_url($request->query->get('date_range')) : array();
 
         $limit = $request->query->get('lm') ? (int)$request->query->get('lm') : 10;
         $page_offset = $request->query->get('p') ? (int)$request->query->get('p') : 0;
@@ -52,7 +51,7 @@ class AdminSystemUsersController extends AdminCPController
             $this->_report_data($results);
         }
 
-        $pagination = GlobalHelper::__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_system_users_page'));
+        $pagination = $this->global_helper_service->__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_system_users_page'));
 
         $this->data['results'] = $results;
         $this->data['pagination'] = $pagination;
@@ -139,7 +138,7 @@ class AdminSystemUsersController extends AdminCPController
         );
 
         $getListRolesUser = $em->getRepository('AdminCPBundle:AdminSystemUsersEntity')->_getListRolesUser();
-        $list_roles = GlobalHelper::__convert_array_result_selectbox($getListRolesUser, array('key'=>'id', 'value'=>'role_name'));
+        $list_roles = $this->global_helper_service->__convert_array_result_selectbox($getListRolesUser, array('key'=>'id', 'value'=>'role_name'));
 
         $defaultData = array('message' => 'Type your message here');
 
@@ -190,7 +189,7 @@ class AdminSystemUsersController extends AdminCPController
             $validator = $this->get('validator');
             $errors = $validator->validate($validation);
 
-            $form_errors = GlobalHelper::getErrorMessages($errors);
+            $form_errors = $this->global_helper_service->getErrorMessages($errors);
             if(!$form_errors){
                 $data['password'] = $this->admincp_service->encodePassword('MyPass', $data['password']);
                 if($data['id'] > 0){

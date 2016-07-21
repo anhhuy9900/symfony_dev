@@ -13,7 +13,6 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use MyApp\AdminCP\Entity\AdminSystemModulesEntity;
 use MyApp\AdminCP\Validation\AdminSystemModulesValidation;
-use MyApp\MyHelper\GlobalHelper;
 
 
 class AdminSystemModulesController extends AdminCPController
@@ -33,11 +32,11 @@ class AdminSystemModulesController extends AdminCPController
      */
     public function indexAction(Request $request)
     {
-        $key = $request->query->get('key') ? GlobalHelper::__xss_clean_string($request->query->get('key')) : '';
+        $key = $request->query->get('key') ? $this->global_helper_service->__xss_clean_string($request->query->get('key')) : '';
 
-        $arr_order = $request->query->get('order') ? GlobalHelper::__handle_param_order_in_url($request->query->get('order')) : array('field'=>'id', 'by'=>'DESC');
+        $arr_order = $request->query->get('order') ? $this->global_helper_service->__handle_param_order_in_url($request->query->get('order')) : array('field'=>'id', 'by'=>'DESC');
 
-        $date_range = $request->query->get('date_range') ? GlobalHelper::__handle_param_date_range_in_url($request->query->get('date_range')) : array();
+        $date_range = $request->query->get('date_range') ? $this->global_helper_service->__handle_param_date_range_in_url($request->query->get('date_range')) : array();
 
         $limit = $request->query->get('lm') ? (int)$request->query->get('lm') : 10;
         $page_offset = $request->query->get('p') ? (int)$request->query->get('p') : 0;
@@ -51,7 +50,7 @@ class AdminSystemModulesController extends AdminCPController
             $this->_report_data($results);
         }
 
-        $pagination = GlobalHelper::__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_system_modules_page'));
+        $pagination = $this->global_helper_service->__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_system_modules_page'));
 
         $this->data['results'] = $results;
         $this->data['pagination'] = $pagination;
@@ -138,7 +137,7 @@ class AdminSystemModulesController extends AdminCPController
         );
 
         $get_recursive_modules = $em->getRepository('AdminCPBundle:AdminSystemModulesEntity')->_get_recursive_modules(0);
-        $list_recursive_modules = GlobalHelper::__convert_array_result_selectbox($get_recursive_modules, array('key'=>'id', 'value'=>'module_name'));
+        $list_recursive_modules = $this->global_helper_service->__convert_array_result_selectbox($get_recursive_modules, array('key'=>'id', 'value'=>'module_name'));
 
         $defaultData = array('message' => 'Type your message here');
         $form = $this->createFormBuilder($defaultData)
@@ -189,7 +188,7 @@ class AdminSystemModulesController extends AdminCPController
             $validator = $this->get('validator');
             $errors = $validator->validate($validation);
 
-            $form_errors = GlobalHelper::getErrorMessages($errors);
+            $form_errors = $this->global_helper_service->getErrorMessages($errors);
             if(!$form_errors){
                 if($data['id'] > 0){
                     /* Update record */
@@ -245,7 +244,7 @@ class AdminSystemModulesController extends AdminCPController
                 $rows[] = $tmp;
             }
             $data['rows'] = $rows;
-            GlobalHelper::__export_to_excel($data,$file_name);
+            $this->global_helper_service->__export_to_excel($data, $file_name);
         }
     }
 }    

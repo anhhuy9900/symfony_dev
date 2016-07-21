@@ -14,7 +14,6 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use MyApp\AdminCP\Entity\AdminSystemRolesEntity;
 use MyApp\AdminCP\Validation\AdminSystemRolesValidation;
-use MyApp\MyHelper\GlobalHelper;
 
 
 class AdminSystemRolesController extends AdminCPController
@@ -34,11 +33,11 @@ class AdminSystemRolesController extends AdminCPController
      */
     public function indexAction(Request $request)
     {
-        $key = $request->query->get('key') ? GlobalHelper::__xss_clean_string($request->query->get('key')) : '';
+        $key = $request->query->get('key') ? $this->global_helper_service->__xss_clean_string($request->query->get('key')) : '';
 
-        $arr_order = $request->query->get('order') ? GlobalHelper::__handle_param_order_in_url($request->query->get('order')) : array('field'=>'id', 'by'=>'DESC');
+        $arr_order = $request->query->get('order') ? $this->global_helper_service->__handle_param_order_in_url($request->query->get('order')) : array('field'=>'id', 'by'=>'DESC');
 
-        $date_range = $request->query->get('date_range') ? GlobalHelper::__handle_param_date_range_in_url($request->query->get('date_range')) : array();
+        $date_range = $request->query->get('date_range') ? $this->global_helper_service->__handle_param_date_range_in_url($request->query->get('date_range')) : array();
 
         $limit = $request->query->get('lm') ? (int)$request->query->get('lm') : 10;
         $page_offset = $request->query->get('p') ? (int)$request->query->get('p') : 0;
@@ -52,7 +51,7 @@ class AdminSystemRolesController extends AdminCPController
             $this->_report_data($results);
         }
 
-        $pagination = GlobalHelper::__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_system_roles_page'));
+        $pagination = $this->global_helper_service->__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_system_roles_page'));
 
         $this->data['results'] = $results;
         $this->data['pagination'] = $pagination;
@@ -171,7 +170,7 @@ class AdminSystemRolesController extends AdminCPController
             $validator = $this->get('validator');
             $errors = $validator->validate($validation);
 
-            $form_errors = GlobalHelper::getErrorMessages($errors);
+            $form_errors = $this->global_helper_service->getErrorMessages($errors);
             if(!$form_errors){
                 $data['role_type'] = self::_filter_permission_role_type($request->request->get('role_type'));
                 if($data['id'] > 0){

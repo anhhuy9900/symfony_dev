@@ -19,6 +19,11 @@ services:
       arguments: ["@doctrine.orm.entity_manager"]
       calls:
            - [ setContainer, [ '@service_container' ]]
+   app.global_helper_service:
+         class: MyApp\MyServices\GlobalHelperService
+         arguments: ["@doctrine.orm.entity_manager"]
+         calls:
+               - [ setContainer, [ '@service_container' ]]
    app.twig_extension:
       class: MyApp\Twig\AppExtension
       public: false

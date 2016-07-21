@@ -8,11 +8,12 @@ use Symfony\Component\HttpFoundation\Response;
 use MyApp\AdminCP\Entity\AdminLoginEntity;
 //use MyApp\AdminCP\Repository\AdminCPRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use MyApp\MyHelper\GlobalHelper;
 
 class AdminCPController extends Controller
 {
     public $admincp_service;
+    public $global_service;
+    public $global_helper_service;
     public $data;
     /**
      * Used as constructor
@@ -22,6 +23,7 @@ class AdminCPController extends Controller
         parent::setContainer($container);
         $this->admincp_service = $this->container->get('app.admincp_service');
         $this->global_service = $this->container->get('app.global_service');
+        $this->global_helper_service = $this->container->get('app.global_helper_service');
         $this->admincp_service->admin_CheckValidLogin();
         $this->data = array(
             'title' => 'Admin DasnhBoard',

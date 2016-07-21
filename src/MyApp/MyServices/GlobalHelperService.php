@@ -1,15 +1,25 @@
 <?php
 
-namespace MyApp\MyHelper;
+namespace MyApp\MyServices;
 
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 use PHPExcel;
 
+class GlobalHelperService  extends Controller
+{
 
-class GlobalHelper{
+    function __construct(EntityManager $entityManager)
+    {
+        $this->em = $entityManager;
+    }
 
-    public static function cutUnicode($str){ //C?t d?u ti?ng vi?t
+    public function cutUnicode($str){ //C?t d?u ti?ng vi?t
         if(!$str) return false;
         $unicode = array(
             'a'=>'á|à|?|ã|?|?|?|?|?|?|?|â|?|?|?|?|?',
@@ -34,7 +44,7 @@ class GlobalHelper{
         return $str;
     }
 
-    public static function _createSlug($string) {
+    public function _createSlug($string) {
         $string= trim(self::cutUnicode($string));
         $string = strtolower($string);
         //Strip any unwanted characters
@@ -44,7 +54,7 @@ class GlobalHelper{
         return $string;
     }
 
-    public static function pr($data, $type = 0) {
+    public function pr($data, $type = 0) {
         print '<pre>';
         print_r($data);
         print '</pre>';
@@ -53,7 +63,7 @@ class GlobalHelper{
         }
     }
 
-    public static function getErrorMessages($errors) {
+    public function getErrorMessages($errors) {
         $error_message = '';
 
         if(count($errors) > 0){
@@ -66,7 +76,7 @@ class GlobalHelper{
         return $error_message;
     }
 
-    public static function __handle_param_order_in_url($value) {
+    public function __handle_param_order_in_url($value) {
         $arr_order = array();
         $explode = explode('|', $value);
         if(!empty($explode)){
@@ -79,7 +89,7 @@ class GlobalHelper{
         return $arr_order;
     }
 
-    public static function __handle_param_date_range_in_url($date_range){
+    public function __handle_param_date_range_in_url($date_range){
         $arr_date_range = array();
         $explode_date = explode('-', $date_range);
         if(!empty($explode_date)){
@@ -92,7 +102,7 @@ class GlobalHelper{
         return $arr_date_range;
     }
 
-    public static function __pagination($totalRows, $pageNum = 1, $pageSize, $limit = 3, $current_url = '') {
+    public function __pagination($totalRows, $pageNum = 1, $pageSize, $limit = 3, $current_url = '') {
         settype($totalRows, "int");
         settype($pageSize, "int");
         if ($totalRows <= 0)
@@ -176,7 +186,7 @@ class GlobalHelper{
     }
 
 
-    public static function __xss_clean_string($input){
+    public function __xss_clean_string($input){
         $output = strip_tags(htmlspecialchars($input));
         return $output;
     }
@@ -230,11 +240,11 @@ class GlobalHelper{
 
         /**
          * Set cell background color
-        */
+         */
         $objPHPExcel->getActiveSheet()->getStyle('A1:'.$sheet1->getHighestColumn().'1')->getFill()
             ->applyFromArray(array('type' => \PHPExcel_Style_Fill::FILL_SOLID,
                 'startcolor' => array('rgb' => '0489B1')
-        ));
+            ));
 
         // Set Column Alignment
         $sheet1->getStyle('A1:'.$sheet1->getHighestColumn().'1')->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
@@ -286,7 +296,7 @@ class GlobalHelper{
 
     }
 
-    public static function __export_to_excel ($data, $name ='') {
+    public function __export_to_excel ($data, $name ='') {
         $_headers = array(
             'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
         ,'AA','AB','AC','AD','AE','AF','AG','AH','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
@@ -312,7 +322,7 @@ class GlobalHelper{
 
     }
 
-    public static function __convert_array_result_selectbox($data, $fields = array()){
+    public function __convert_array_result_selectbox($data, $fields = array()){
         $arr_values = array(
             0 => 'Select Value'
         );
@@ -325,7 +335,7 @@ class GlobalHelper{
         return $arr_values;
     }
 
-    public static function __convert_array_result($data, $fields = array()){
+    public function __convert_array_result($data, $fields = array()){
         $arr_values = array();
         if(!empty($data)){
             foreach($data as $value){

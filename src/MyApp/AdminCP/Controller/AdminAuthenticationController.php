@@ -12,11 +12,12 @@ use MyApp\AdminCP\Validation\AdminLoginValidation;
 use MyApp\AdminCP\Entity\AdminAuthenticationEntity;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use MyApp\MyHelper\GlobalHelper;
 
 class AdminAuthenticationController extends Controller
 {
     private $admincp_service;
+    private $global_helper_service;
+
     /**
      * Used as constructor
      */
@@ -24,7 +25,7 @@ class AdminAuthenticationController extends Controller
     {
         parent::setContainer($container);
         $this->admincp_service = $this->container->get('app.admincp_service');
-
+        $this->global_helper_service = $this->container->get('app.global_helper_service');
     }
 
     /**
@@ -60,7 +61,7 @@ class AdminAuthenticationController extends Controller
             $validator = $this->get('validator');
             $errors = $validator->validate($validation);
 
-            $form_errors = GlobalHelper::getErrorMessages($errors);
+            $form_errors = $this->global_helper_service->getErrorMessages($errors);
             if(!$form_errors){
                 $this->admincp_service->admin_onAuthentication($data);
 

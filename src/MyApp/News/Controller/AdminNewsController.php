@@ -16,7 +16,6 @@ use MyApp\News\Entity\NewsEntity;
 use MyApp\News\Entity\FilesManagedEntity;
 use MyApp\News\Entity\TagsEntity;
 use MyApp\News\Validation\AdminNewsValidation;
-use MyApp\MyHelper\GlobalHelper;
 
 class AdminNewsController extends AdminCPController
 {
@@ -35,11 +34,11 @@ class AdminNewsController extends AdminCPController
      */
     public function indexAction(Request $request)
     {
-        $key = $request->query->get('key') ? GlobalHelper::__xss_clean_string($request->query->get('key')) : '';
+        $key = $request->query->get('key') ? $this->global_helper_service->__xss_clean_string($request->query->get('key')) : '';
 
-        $arr_order = $request->query->get('order') ? GlobalHelper::__handle_param_order_in_url($request->query->get('order')) : array('field'=>'id', 'by'=>'DESC');
+        $arr_order = $request->query->get('order') ? $this->global_helper_service->__handle_param_order_in_url($request->query->get('order')) : array('field'=>'id', 'by'=>'DESC');
 
-        $date_range = $request->query->get('date_range') ? GlobalHelper::__handle_param_date_range_in_url($request->query->get('date_range')) : array();
+        $date_range = $request->query->get('date_range') ? $this->global_helper_service->__handle_param_date_range_in_url($request->query->get('date_range')) : array();
 
         $limit = $request->query->get('lm') ? (int)$request->query->get('lm') : 10;
         $page_offset = $request->query->get('p') ? (int)$request->query->get('p') : 0;
@@ -53,7 +52,7 @@ class AdminNewsController extends AdminCPController
             $this->_report_data($results);
         }
 
-        $pagination = GlobalHelper::__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_news_page'));
+        $pagination = $this->global_helper_service->__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_news_page'));
 
         $this->data['results'] = $results;
         $this->data['pagination'] = $pagination;
@@ -224,7 +223,7 @@ class AdminNewsController extends AdminCPController
             $validator = $this->get('validator');
             $errors = $validator->validate($validation);
 
-            $form_errors = GlobalHelper::getErrorMessages($errors);
+            $form_errors = $this->global_helper_service->getErrorMessages($errors);
             if(!$form_errors){
 
                 //Upload image
@@ -272,7 +271,7 @@ class AdminNewsController extends AdminCPController
             'success' => $success,
             'fields_value' => $fields_value,
             'list_galleries' => $list_galleries,
-            'list_tags' => (!empty($list_tags)) ? json_encode($list_tags): array()
+            'list_tags' => (!empty($list_tags)) ? json_encode($list_tags): ''
         );
 
         return $handle_data;
@@ -311,7 +310,7 @@ class AdminNewsController extends AdminCPController
                 $rows[] = $tmp;
             }
             $data['rows'] = $rows;
-            GlobalHelper::__export_to_excel($data,$file_name);
+            $this->global_helper_service->__export_to_excel($data,$file_name);
         }
     }
 

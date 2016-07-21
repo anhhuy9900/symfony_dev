@@ -5,11 +5,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Request;
-use MyApp\AdminCP\Entity\AdminAuthenticationEntity;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
+use MyApp\AdminCP\Entity\AdminAuthenticationEntity;
 
 class AdminCPService extends Controller{
 
@@ -56,8 +56,7 @@ class AdminCPService extends Controller{
     }
 
     function admin_UserSessionLogin(){
-        $session = new Session();
-
+        $session = new Session(new PhpBridgeSessionStorage());
         $valid = FALSE;
         if(!empty($session->get('_security_secured_userad'))){
             $valid = TRUE;
