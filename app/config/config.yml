@@ -37,6 +37,8 @@ twig:
     strict_variables: "%kernel.debug%"
     paths:
             "%kernel.root_dir%/../web/themes/admin/views": admin
+    globals:
+            app_admincp_service: "@app.admincp_service"
 
 # Doctrine Configuration
 doctrine:

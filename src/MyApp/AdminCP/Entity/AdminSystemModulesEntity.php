@@ -41,6 +41,11 @@ class AdminSystemModulesEntity {
     /**
      * @ORM\Column(type="smallint", length=1)
      */
+    private $module_permission;
+
+    /**
+     * @ORM\Column(type="smallint", length=1)
+     */
     private $module_status;
 
     /**
@@ -101,6 +106,14 @@ class AdminSystemModulesEntity {
 
     public function getModule_Type() {
         return $this->module_type;
+    }
+
+    public function setModule_Permission($module_permission) {
+        $this->module_permission = $module_permission;
+    }
+
+    public function getModule_Permission() {
+        return $this->module_permission;
     }
 
     public function setModule_Status($module_status) {

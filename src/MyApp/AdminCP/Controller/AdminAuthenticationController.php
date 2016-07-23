@@ -56,22 +56,20 @@ class AdminAuthenticationController extends Controller
 
             $data = $form->getData();
             $validation->username = $data['username'];
-            $validation->password = md5($data['password']);
-
+            $validation->password = $data['password'];
             $validator = $this->get('validator');
             $errors = $validator->validate($validation);
 
             $form_errors = $this->global_helper_service->getErrorMessages($errors);
             if(!$form_errors){
-                $this->admincp_service->admin_onAuthentication($data);
+                $user = $this->admincp_service->admin_checkValidUser($data['username'], $data['password']);
+                $this->admincp_service->admin_onAuthentication($user);
 
                 $url = $this->generateUrl('admincp_page');
                 return $this->redirect($url, 301);
                 exit();
             }
         }
-
-
 
         $data = array(
             'form' => $form->createView(),

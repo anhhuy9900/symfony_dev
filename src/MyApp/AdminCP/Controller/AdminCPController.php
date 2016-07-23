@@ -36,8 +36,7 @@ class AdminCPController extends Controller
      * @Route("/admind", name="admincp_page")
      */
     public function indexAction(Request $request)
-    {   
-
+    {
         $this->data['title'] = 'Admin DasnhBoard';
         return $this->render('@admin/admin.html.twig', $this->data);
     }

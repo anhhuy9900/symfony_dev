@@ -39,6 +39,16 @@ class AdminAuthenticationEntity {
     private $password;
 
     /**
+     * @ORM\Column(type="string", length=60)
+     */
+    private $user_token;
+
+    /**
+     * @ORM\Column(type="smallint", length=1)
+     */
+    private $permission_limit;
+
+    /**
      * @ORM\Column(type="smallint", length=1)
      */
     private $status;
@@ -79,11 +89,27 @@ class AdminAuthenticationEntity {
     }
 
     public function setPassword($password) {
-        $this->password = $password;
-    }
+    $this->password = $password;
+}
 
     public function getPassword() {
         return $this->password;
+    }
+
+    public function setUser_Token($user_token) {
+        $this->user_token = $user_token;
+    }
+
+    public function getUser_Token() {
+        return $this->user_token;
+    }
+
+    public function setPermission_limit($permission_limit) {
+        $this->permission_limit = $permission_limit;
+    }
+
+    public function getPermission_limit() {
+        return $this->permission_limit;
     }
 
     public function setStatus($status) {

@@ -13,6 +13,13 @@ use MyApp\AdminCP\Entity\AdminAuthenticationEntity;
 
 class AdminCPService extends Controller{
 
+    private $global_helper_service;
+
+    public function setContainer(ContainerInterface $container = null)
+    {
+        parent::setContainer($container);
+        $this->global_helper_service = $this->container->get('app.global_helper_service');
+    }
 
     function __construct(EntityManager $entityManager)
     {
@@ -24,21 +31,53 @@ class AdminCPService extends Controller{
         $password = $this->encodePassword('MyPass', $password);
         $repository = $this->em->getRepository('AdminCPBundle:AdminAuthenticationEntity');
         $query = $repository->createQueryBuilder('pk')
-        ->where('pk.username = :username')
-        ->andWhere('pk.password = :password')
-        ->setParameters(array('username' => $username, 'password'=> $password))
-        ->getQuery();    
+            ->where('pk.username = :username')
+            ->andWhere('pk.password = :password')
+            ->andwhere('pk.status = 1')
+            ->setParameters(array('username' => $username, 'password'=> $password))
+            ->setMaxResults(1)
+            ->getQuery();
 
-        $result = $query->getResult();
+        $result = $query->getArrayResult();
         if(!empty($result)){
-            return TRUE;
+            return $this->global_helper_service->__convert_result_to_object($result);
         }
 
         return FALSE;
     }
 
+    function admin_getUserByToken($user_token)
+    {
 
-    function admin_onAuthentication($data){
+        $repository = $this->em->getRepository('AdminCPBundle:AdminAuthenticationEntity');
+        $query = $repository->createQueryBuilder('pk')
+            ->where('pk.user_token LIKE :user_token')
+            ->andwhere('pk.status = 1')
+            ->setParameters(array('user_token' => $user_token))
+            ->getQuery();
+
+        $result = $query->getArrayResult();
+        if(!empty($result)){
+            return $this->global_helper_service->__convert_result_to_object($result);
+        }
+
+        return FALSE;
+    }
+
+    function admin_get_current_user_login(){
+        $session = new Session(new PhpBridgeSessionStorage());
+        if(!empty($session->get('_userad_authentication'))) {
+            $session_user = $session->get('_userad_authentication');
+
+            //get current user
+            $get_user = $this->admin_getUserByToken($session_user['token']);
+            return $get_user;
+        }
+        return NULL;
+    }
+
+
+    function admin_onAuthentication($user_data){
         $session = new Session(new PhpBridgeSessionStorage());
         $session->start();
 
@@ -46,7 +85,8 @@ class AdminCPService extends Controller{
         $token = new UsernamePasswordToken('admin', null, $firewall, array('ROLE_ADMIN'));
 
         $user = array(
-            'username' => $data['username'],
+            'username' => $user_data->username,
+            'token' => $user_data->user_token,
             'ad_token' => $token,
         );
 
@@ -85,14 +125,18 @@ class AdminCPService extends Controller{
     }
 
     public function _lists_modules_left_theme($parent_id){
+        $current_user = $this->admin_get_current_user_login();
         $repository = $this->em->getRepository('AdminCPBundle:AdminSystemModulesEntity');
         $query = $repository->createQueryBuilder('pk');
         $query->select("pk.id, pk.module_name, pk.module_alias");
         $query->where('pk.module_status = 1');
         $query->andWhere('pk.parent_id = :parent_id')->setParameter('parent_id', $parent_id);
+        //Just only super admin enough permission access for all modules
+        if($current_user->permission_limit == 0){
+            $query->andWhere('pk.module_permission = 0');
+        }
         $query->orderBy("pk.module_order", 'ASC');
         $results = $query->getQuery()->getResult();
-        //dump($results);die();
 
         $html = '';
         if(!empty($results)){
@@ -116,6 +160,85 @@ class AdminCPService extends Controller{
         }
 
         return $html;
+    }
+
+    public function admin_check_roles_user($module_id, $role_type){
+        $valid = FALSE;
+        $get_user = $this->admin_get_current_user_login();
+        if($get_user){
+            $repository = $this->em->getRepository('AdminCPBundle:AdminSystemUsersEntity');
+            $query = $repository->createQueryBuilder('pk');
+            $query->select("fk.role_type");
+            $query->leftJoin("AdminCPBundle:AdminSystemRolesEntity", "fk", "WITH", "pk.role_id=fk.id");
+            $query->where('pk.id = :id')->setParameter('id', $get_user->id);
+            $query->andwhere('pk.status = 1');
+            $result = $query->getQuery()->getArrayResult(\Doctrine\ORM\Query::HYDRATE_SCALAR);
+
+            $result_role_type = unserialize($result[0]['role_type']);
+            if(!empty($result_role_type[$module_id])){
+                switch($role_type){
+                    case 'view':
+                        if($result_role_type[$module_id][$role_type]){
+                            $valid = TRUE;
+                        }
+                        break;
+                    case 'add':
+                        if($result_role_type[$module_id][$role_type]){
+                            $valid = TRUE;
+                        }
+                        break;
+                    case 'edit':
+                        if($result_role_type[$module_id][$role_type]){
+                            $valid = TRUE;
+                        }
+                        break;
+                    case 'delete':
+                        if($result_role_type[$module_id][$role_type]){
+                            $valid = TRUE;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if($get_user->permission_limit == 1){
+                $valid = TRUE;
+            }
+        }
+
+        return $valid;
+
+    }
+
+    public static function __admin_random_token($length = 16)
+    {
+        if (function_exists('openssl_random_pseudo_bytes'))
+        {
+            $bytes = openssl_random_pseudo_bytes($length * 2);
+
+            if ($bytes === false)
+            {
+                // throw exception that unable to create random token
+            }
+
+            return substr(str_replace(array('/', '+', '='), '', base64_encode($bytes)), 0, $length);
+        }
+
+        return ;
+    }
+
+    public function admin_get_current_module($module_alias, $field = ''){
+        $repository = $this->em->getRepository('AdminCPBundle:AdminSystemModulesEntity');
+        $query = $repository->createQueryBuilder('pk');
+        $query->select("pk");
+        $query->where('pk.module_alias LIKE :module_alias')->setParameter('module_alias', $module_alias);
+        $result = $query->getQuery()->getArrayResult();
+        if(!empty($result)){
+            $data =  $this->global_helper_service->__convert_result_to_object($result);
+            return !$field ? $data : $data->$field;
+        }
+        return 0;
     }
 
 }

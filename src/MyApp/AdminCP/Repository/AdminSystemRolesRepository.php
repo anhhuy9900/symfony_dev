@@ -92,6 +92,7 @@ class AdminSystemRolesRepository extends EntityRepository
         $query = $repository->createQueryBuilder('pk');
         $query->select('pk.id, pk.module_name');
         $query->where('pk.module_status = 1');
+        $query->andwhere('pk.parent_id > 0');
         $result = $query->getQuery()->getResult();
 
         return $result;

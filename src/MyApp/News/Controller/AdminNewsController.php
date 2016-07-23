@@ -27,6 +27,7 @@ class AdminNewsController extends AdminCPController
     {
         parent::setContainer($container);
         $this->data['title'] = 'Admin Manage News';
+        $this->data['admin_module_id'] = $this->admincp_service->admin_get_current_module('admincp_news_page', 'id');
     }
 
     /**
@@ -34,6 +35,9 @@ class AdminNewsController extends AdminCPController
      */
     public function indexAction(Request $request)
     {
+
+        //$this->admincp_service->admin_check_roles_user($this->data['module_id']);
+
         $key = $request->query->get('key') ? $this->global_helper_service->__xss_clean_string($request->query->get('key')) : '';
 
         $arr_order = $request->query->get('order') ? $this->global_helper_service->__handle_param_order_in_url($request->query->get('order')) : array('field'=>'id', 'by'=>'DESC');

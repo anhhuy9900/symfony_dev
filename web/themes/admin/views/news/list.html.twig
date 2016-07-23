@@ -20,10 +20,12 @@
 		{% endif %}
 	</div>
 	<div class="col-xs-1 pull-right span6">
-		<a href="{{ path('admincp_news_create_page') }}" class="btn btn-app btn-primary no-radius">
-			<i class="ace-icon fa fa-pencil-square-o bigger-160"></i>
-			Add New
-		</a>
+		{% if app_admincp_service.admin_check_roles_user(admin_module_id, 'add') %}
+			<a href="{{ path('admincp_news_create_page') }}" class="btn btn-app btn-primary no-radius">
+				<i class="ace-icon fa fa-pencil-square-o bigger-160"></i>
+				Add New
+			</a>
+		{% endif %}
 	</div>
 </div><!-- /.page-header -->
 
@@ -135,14 +137,17 @@
 										<!--<a class="blue" href="#">
 											<i class="ace-icon fa fa-search-plus bigger-130"></i>
 										</a>-->
+										{% if app_admincp_service.admin_check_roles_user(admin_module_id, 'edit') %}
+											<a class="green" href="{{ path('admincp_news_edit_page', {'id': value.id}) }}" title="Edit">
+												<i class="ace-icon fa fa-pencil bigger-130"></i>
+											</a>
+										{% endif %}
 
-										<a class="green" href="{{ path('admincp_news_edit_page', {'id': value.id}) }}" title="Edit">
-											<i class="ace-icon fa fa-pencil bigger-130"></i>
-										</a>
-
-										<a class="red" href="{{ path('admincp_news_delete_page', {'id': value.id}) }}" title="Delete">
-											<i class="ace-icon fa fa-trash-o bigger-130"></i>
-										</a>
+										{% if app_admincp_service.admin_check_roles_user(admin_module_id, 'delete') %}
+											<a class="red" href="{{ path('admincp_news_delete_page', {'id': value.id}) }}" title="Delete">
+												<i class="ace-icon fa fa-trash-o bigger-130"></i>
+											</a>
+										{% endif %}
 									</div>
 
 									<div class="hidden-md hidden-lg">

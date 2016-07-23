@@ -2,6 +2,7 @@
 
 namespace MyApp\MyServices;
 
+use MyProject\Proxies\__CG__\stdClass;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\EntityManager;
@@ -344,6 +345,26 @@ class GlobalHelperService  extends Controller
             }
         }
         return $arr_values;
+    }
+
+    public function __convert_result_to_object($data){
+
+        $values = array();
+        if(!empty($data)){
+            $count_records = count($data);
+            if($count_records > 1){
+                foreach($data as $key => $value){
+                    $object = (object)$value;
+                    $values[] = $object;
+                }
+                return $values;
+            } else {
+                $object = (object)$data[0];
+                return $object;
+            }
+
+        }
+        return NULL;
     }
 
 }

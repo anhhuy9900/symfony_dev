@@ -24,7 +24,7 @@ class GlobalService extends Controller
         $query->andWhere('pk.type_id = :type_id');
         $query->setParameter('type', $type);
         $query->setParameter('type_id', $type_id);
-        $results = $query->getQuery()->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
+        $results = $query->getQuery()->getSingleScalarResult();
 
         return $results;
     }

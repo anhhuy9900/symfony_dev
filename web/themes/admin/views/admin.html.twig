@@ -151,7 +151,7 @@
 
         <ul class="nav nav-list">
             <li class="active">
-                <a href="index.html">
+                <a href="{{ path('admincp_page') }}">
                     <i class="menu-icon fa fa-tachometer"></i>
                     <span class="menu-text"> Dashboard </span>
                 </a>
@@ -171,52 +171,9 @@
 
                 <b class="arrow"></b>
 
+                <!---Load list modules admin -->
                 {{ left_menu | raw}}
 
-                <!--<ul class="submenu">
-                    <li class="">
-                        <a href="{{ path('admincp_system_modules_page') }}">
-                            <i class="menu-icon fa fa-caret-right"></i>
-                            System Modules
-                        </a>
-                        <b class="arrow"></b>
-                    </li>
-                    <li class="">
-                        <a href="{{ path('admincp_system_roles_page') }}">
-                            <i class="menu-icon fa fa-caret-right"></i>
-                            System Roles
-                        </a>
-                        <b class="arrow"></b>
-                    </li>
-
-                    <li class="">
-                        <a href="{{ path('admincp_system_users_page') }}">
-                            <i class="menu-icon fa fa-caret-right"></i>
-                            System Users
-                        </a>
-                        <b class="arrow"></b>
-                    </li>
-
-                    <li class="">
-                        <a href="#" class="dropdown-toggle">
-                            <i class="menu-icon fa fa-caret-right"></i>
-
-                            Layouts
-                            <b class="arrow fa fa-angle-down"></b>
-                        </a>
-                        <b class="arrow"></b>
-                        <ul class="submenu">
-                            <li class="">
-                                <a href="top-menu.html">
-                                    <i class="menu-icon fa fa-caret-right"></i>
-                                    Top Menu
-                                </a>
-
-                                <b class="arrow"></b>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>-->
             </li>
 
         </ul><!-- /.nav-list -->
