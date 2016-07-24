@@ -54,7 +54,6 @@ var AdminMain = window.AdminMain || {};
                 var list_tags = $(".list_tags").val() ? JSON.parse($(".list_tags").val()) : [];
                 if(list_tags.length > 0){
                     for(var i in list_tags){
-                        console.log("list_tags : " + list_tags[i].tag_name);
                         $tag_obj.add(list_tags[i].tag_name);
                     }
                 }
@@ -66,8 +65,6 @@ var AdminMain = window.AdminMain || {};
                 tag_input.after('<textarea id="'+tag_input.attr('id')+'" name="'+tag_input.attr('name')+'" rows="10">'+tag_input.val()+'</textarea>').remove();
                 //$('#form_tags').autosize({append: "\n"});
             }
-
-
         },
 
         admin_submit_limit_records : function(){

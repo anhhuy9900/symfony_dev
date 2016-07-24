@@ -4,6 +4,7 @@ namespace MyApp\News\Repository;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use MyApp\News\Entity\NewsEntity;
+use MyApp\News\Entity\TagsEntity;
 
 
 /**
@@ -19,7 +20,9 @@ class AdminNewsRepository extends EntityRepository
         $entity = new NewsEntity();
         $entity->setCategoryID($data['category_id']);
         $entity->setTitle($data['title']);
-        $entity->setImage($data['image']);
+        if($data['image']){
+            $entity->setImage($data['image']);
+        }
         $entity->setDescription($data['description']);
         $entity->setContent($data['content']);
         $entity->setStatus($data['status']);
@@ -40,7 +43,9 @@ class AdminNewsRepository extends EntityRepository
 
         $entity->setCategoryID($data['category_id']);
         $entity->setTitle($data['title']);
-        $entity->setImage($data['image']);
+        if($data['image']){
+            $entity->setImage($data['image']);
+        }
         $entity->setDescription($data['description']);
         $entity->setContent($data['content']);
         $entity->setStatus($data['status']);
@@ -103,5 +108,67 @@ class AdminNewsRepository extends EntityRepository
         $query->setParameter('type_id', $type_id);
         $results = $query->getQuery()->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
         return $results;
+    }
+
+    /**
+     * This function use create and update atgs for each news
+     */
+    public function _handle_tags_new($type_id, $type = 'default', $tags = ''){
+
+        if($tags){
+            $entity = $this->getEntityManager()->getRepository('NewsBundle:TagsEntity');
+            $list_tags = explode(',', $tags);
+            if(!empty($list_tags)){
+                foreach($list_tags as $tag){
+                    $query = $entity->createQueryBuilder('pk');
+                    $query->select("pk");
+                    $query->where('pk.type = :type');
+                    $query->andWhere('pk.type_id = :type_id');
+                    $query->andWhere('pk.tag_name = :tag_name');
+                    $query->setParameter('type', $type);
+                    $query->setParameter('type_id', $type_id);
+                    $query->setParameter('tag_name', $tag);
+                    $get_tag_exists = $query->getQuery()->getResult();
+
+                    if(empty($get_tag_exists)) {
+
+                        //Create tag in database
+                        $create = new TagsEntity();
+                        $create->setTypeID($type_id);
+                        $create->setType($type);
+                        $create->setTag_Name($tag);
+                        $create->setStatus(1);
+                        $create->setCreated_Date(time());
+                        $em = $this->getEntityManager();
+                        $em->persist($create);
+                        $em->flush();
+
+                    }
+                }
+            }
+
+            //delete tag if it isn't exists in list atgs
+            $query = $entity->createQueryBuilder('pk');
+            $query->select("pk");
+            $query->where('pk.type = :type');
+            $query->andWhere('pk.type_id = :type_id');
+            $query->andWhere($query->expr()->notIn('pk.tag_name', ':list_tags'));
+            $query->setParameter('type', $type);
+            $query->setParameter('type_id', $type_id);
+            $query->setParameter('list_tags', $list_tags);
+            $list_tags_delete = $query->getQuery()->getResult();
+            if(!empty($list_tags_delete)) {
+                foreach ($list_tags_delete as $tag) {
+                    $entity_delete = $entity->findOneBy(array('id' => $tag->getID()));
+                    $em = $this->getEntityManager();
+                    $em->remove($entity_delete);
+                    $em->flush();
+                }
+            }
+
+            return TRUE;
+        }
+
+        return FALSE;
     }
 }

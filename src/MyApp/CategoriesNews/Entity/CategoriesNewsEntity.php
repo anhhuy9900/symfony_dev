@@ -1,5 +1,5 @@
 <?php
-namespace MyApp\News\Entity;
+namespace MyApp\CategoriesNews\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\EntityRepository;
@@ -7,10 +7,10 @@ use Doctrine\ORM\EntityRepository;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="news")
- * @ORM\Entity(repositoryClass="MyApp\News\Repository\AdminNewsRepository")
+ * @ORM\Table(name="categories_news")
+ * @ORM\Entity(repositoryClass="MyApp\CategoriesNews\Repository\AdminCategoriesNewsRepository")
  */
-class NewsEntity {
+class CategoriesNewsEntity {
     /**
      * @ORM\Column(type="integer", length=11)
      * @ORM\id
@@ -19,30 +19,10 @@ class NewsEntity {
     private $id;
 
     /**
-     * @ORM\Column(type="integer", length=11)
-     */
-    private $category_id;
-
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private $title;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $image;
-
-    /**
-     * @ORM\Column(type="text")
-     */
-    private $description;
-
-    /**
-     * @ORM\Column(type="text")
-     */
-    private $content;
 
     /**
      * @ORM\Column(type="smallint", length=1)
@@ -72,14 +52,6 @@ class NewsEntity {
         return $this->id;
     }
 
-    public function setCategoryID($category_id) {
-        $this->category_id = $category_id;
-    }
-
-    public function getCategoryID() {
-        return $this->category_id;
-    }
-
     public function setTitle($title) {
         $this->title = $title;
     }
@@ -87,31 +59,7 @@ class NewsEntity {
     public function getTitle() {
         return $this->title;
     }
-
-    public function setImage($image) {
-        $this->image = $image;
-    }
-
-    public function getImage() {
-        return $this->image;
-    }
-
-    public function setDescription($description) {
-        $this->description = $description;
-    }
-
-    public function getDescription() {
-        return $this->description;
-    }
-
-    public function setContent($content) {
-        $this->content = $content;
-    }
-
-    public function getContent() {
-        return $this->content;
-    }
-
+    
     public function setStatus($status) {
         $this->status = $status;
     }

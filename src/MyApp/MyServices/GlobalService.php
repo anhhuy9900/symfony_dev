@@ -11,6 +11,14 @@ use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 class GlobalService extends Controller
 {
 
+    private $global_helper_service;
+
+    public function setContainer(ContainerInterface $container = null)
+    {
+        parent::setContainer($container);
+        $this->global_helper_service = $this->container->get('app.global_helper_service');
+    }
+
     function __construct(EntityManager $entityManager)
     {
         $this->em = $entityManager;
@@ -24,9 +32,13 @@ class GlobalService extends Controller
         $query->andWhere('pk.type_id = :type_id');
         $query->setParameter('type', $type);
         $query->setParameter('type_id', $type_id);
-        $results = $query->getQuery()->getSingleScalarResult();
+        $result = $query->getQuery()->getArrayResult();
 
-        return $results;
+        if(!empty($result)){
+            return $this->global_helper_service->__convert_result_to_object($result, 1);
+        }
+
+        return FALSE;
     }
 
 }

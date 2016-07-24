@@ -347,12 +347,12 @@ class GlobalHelperService  extends Controller
         return $arr_values;
     }
 
-    public function __convert_result_to_object($data){
+    public function __convert_result_to_object($data, $check_list_array = 0){
 
         $values = array();
         if(!empty($data)){
-            $count_records = count($data);
-            if($count_records > 1){
+            //$count_records = count($data);
+            if($check_list_array == 1){
                 foreach($data as $key => $value){
                     $object = (object)$value;
                     $values[] = $object;

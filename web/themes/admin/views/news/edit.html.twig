@@ -53,7 +53,7 @@
 				{{ form_label(form.description, form.description, {'label_attr': {'class': 'col-sm-3 control-label no-padding-right','role': 'form-field-1'}}) }}
 
 				<div class="col-sm-7">
-					{{ form_widget(form.description, {'attr': {'class': 'col-xs-10 col-sm-5','placeholder': 'Value','rows' : '5'}}) }}
+					{{ form_widget(form.description, {'attr': {'class': 'col-xs-10 col-sm-12','placeholder': 'Value','rows' : '5'}}) }}
 				</div>
 			</div>
 
@@ -129,10 +129,10 @@
 					{{ form_widget(form.send, {'attr': {'class': 'btn btn-info'}}) }}
 
 					&nbsp; &nbsp; &nbsp;
-					<button class="btn" type="reset">
+					<a href="{{ path('admincp_news_page') }}" class="btn" type="reset">
 						<i class="ace-icon fa fa-undo bigger-110"></i>
-						Reset
-					</button>
+						Back
+					</a>
 				</div>
 			</div>
 

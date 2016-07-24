@@ -7,3 +7,8 @@ myapp_news:
     resource: "@NewsBundle/Controller/"
     type:     annotation
     prefix:   /
+
+myapp_categories_news:
+    resource: "@CategoriesNewsBundle/Controller/"
+    type:     annotation
+    prefix:   /

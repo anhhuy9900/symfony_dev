@@ -18,6 +18,7 @@ class AppKernel extends Kernel
             new AppBundle\AppBundle(),
             new MyApp\AdminCP\AdminCPBundle(),
             new MyApp\News\NewsBundle(),
+            new MyApp\CategoriesNews\CategoriesNewsBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {

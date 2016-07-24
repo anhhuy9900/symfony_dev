@@ -1,0 +1,3 @@
+categories_news_routing:
+    pattern:  /categories
+    defaults: { _controller: CategoriesNewsBundle:CategoriesNews:index }

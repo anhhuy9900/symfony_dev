@@ -1,5 +1,5 @@
 <?php
-namespace MyApp\News\Controller;
+namespace MyApp\CategoriesNews\Controller;
 
 use MyApp\AdminCP\Controller\AdminCPController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -8,14 +8,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use MyApp\News\Entity\NewsEntity;
-use MyApp\News\Validation\AdminNewsValidation;
+use MyApp\CategoriesNews\Entity\CategoriesNewsEntity;
+use MyApp\CategoriesNews\Validation\AdminCategoriesNewsValidation;
 
-class AdminNewsController extends AdminCPController
+class AdminCategoriesNewsController extends AdminCPController
 {
 
     /**
@@ -24,12 +22,12 @@ class AdminNewsController extends AdminCPController
     public function setContainer(ContainerInterface $container = null)
     {
         parent::setContainer($container);
-        $this->data['title'] = 'Admin Manage News';
-        $this->data['admin_module_id'] = $this->admincp_service->admin_get_current_module('admincp_news_page', 'id');
+        $this->data['title'] = 'Admin Manage Categories News';
+        $this->data['admin_module_id'] = $this->admincp_service->admin_get_current_module('admincp_categories_news_page', 'id');
     }
 
     /**
-     * @Route("/admind/news", name="admincp_news_page")
+     * @Route("/admind/categories_news", name="admincp_categories_news_page")
      */
     public function indexAction(Request $request)
     {
@@ -44,7 +42,7 @@ class AdminNewsController extends AdminCPController
         $page_offset = $request->query->get('p') ? (int)$request->query->get('p') : 0;
         $offset = $page_offset > 0 ? ($page_offset - 1) * $limit : $page_offset * $limit;
 
-        $repository = $this->getDoctrine()->getRepository('NewsBundle:NewsEntity');
+        $repository = $this->getDoctrine()->getRepository('CategoriesNewsBundle:CategoriesNewsEntity');
         $total = $repository->_getTotalRecords($key);
         $results = $repository->_getListRecords($limit, $offset, array('key' => $key, 'date_range' => $date_range), $arr_order);
 
@@ -52,16 +50,16 @@ class AdminNewsController extends AdminCPController
             $this->_report_data($results);
         }
 
-        $pagination = $this->global_helper_service->__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_news_page'));
+        $pagination = $this->global_helper_service->__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_categories_news_page'));
 
         $this->data['results'] = $results;
         $this->data['pagination'] = $pagination;
 
-        return $this->render('@admin/news/list.html.twig', $this->data);
+        return $this->render('@admin/categories_news/list.html.twig', $this->data);
     }
 
     /**
-     * @Route("/admind/news/create", name="admincp_news_create_page")
+     * @Route("/admind/categories_news/create", name="admincp_categories_news_create_page")
      */
     public function createAction(Request $request)
     {
@@ -70,22 +68,20 @@ class AdminNewsController extends AdminCPController
 
         if($handle_data['success']){
             $request->getSession()->getFlashBag()->add('message_data', 'Created record success!');
-            $url = $this->generateUrl('admincp_news_page');
+            $url = $this->generateUrl('admincp_categories_news_page');
             return $this->redirect($url, 301);
         }
 
         $this->data['form'] = $handle_data['form']->createView();
         $this->data['form_errors'] = $handle_data['form_errors'];
         $this->data['fields_value'] = $handle_data['fields_value'];
-        $this->data['list_galleries'] = $handle_data['list_galleries'];
-        $this->data['list_tags'] = $handle_data['list_tags'];
 
-        return $this->render('@admin/news/edit.html.twig', $this->data);
+        return $this->render('@admin/categories_news/edit.html.twig', $this->data);
 
     }
 
     /**
-     * @Route("/admind/news/edit/{id}", name="admincp_news_edit_page")
+     * @Route("/admind/categories_news/edit/{id}", name="admincp_categories_news_edit_page")
      */
     public function editAction($id, Request $request)
     {
@@ -93,34 +89,32 @@ class AdminNewsController extends AdminCPController
 
         if($handle_data['success']){
             $request->getSession()->getFlashBag()->add('message_data', 'Updated record success!');
-            $url = $this->generateUrl('admincp_news_page');
+            $url = $this->generateUrl('admincp_categories_news_page');
             return $this->redirect($url, 301);
         }
 
         $this->data['form'] = $handle_data['form']->createView();
         $this->data['form_errors'] = $handle_data['form_errors'];
         $this->data['fields_value'] = $handle_data['fields_value'];
-        $this->data['list_galleries'] = $handle_data['list_galleries'];
-        $this->data['list_tags'] = $handle_data['list_tags'];
 
-        return $this->render('@admin/news/edit.html.twig', $this->data);
+        return $this->render('@admin/categories_news/edit.html.twig', $this->data);
     }
 
     /**
-     * @Route("/admind/news/delete/{id}", name="admincp_news_delete_page")
+     * @Route("/admind/categories_news/delete/{id}", name="admincp_categories_news_delete_page")
      */
     public function deleteAction($id , Request $request)
     {
         if($id > 0){
             $em = $this->getDoctrine()->getEntityManager();
-            $check_exist_record = $em->getRepository('NewsBundle:NewsEntity')->find($id);
+            $check_exist_record = $em->getRepository('CategoriesNewsBundle:CategoriesNewsEntity')->find($id);
             if($check_exist_record){
-                $em->getRepository('NewsBundle:NewsEntity')->_delete_record_DB($id);
+                $em->getRepository('CategoriesNewsBundle:CategoriesNewsEntity')->_delete_record_DB($id);
 
                 $request->getSession()->getFlashBag()->add('message_data', 'Deleted record success!');
             }
 
-            $url = $this->generateUrl('admincp_news_page');
+            $url = $this->generateUrl('admincp_categories_news_page');
             return $this->redirect($url, 301);
             exit();
         }
@@ -133,68 +127,28 @@ class AdminNewsController extends AdminCPController
      */
     private function handle_form_data($id, $request){
         $em = $this->getDoctrine()->getEntityManager();
-        $result_data = $em->getRepository('NewsBundle:NewsEntity')->find($id);
+        $result_data = $em->getRepository('CategoriesNewsBundle:CategoriesNewsEntity')->find($id);
 
         $fields_value = array(
             'id' => ( $id ? $id : 0 ),
-            'category_id' => ( $result_data ? $result_data->getCategoryID() : 0 ),
             'title' => ( $result_data ? $result_data->getTitle() : '' ),
-            'image' => ( $result_data ? $result_data->getImage() : '' ),
-            'description' => ( $result_data ? $result_data->getDescription() : '' ),
-            'content' => ( $result_data ? $result_data->getContent() : '' ),
             'status' => ( $result_data ? $result_data->getStatus() : 0 )
         );
 
-        //Get list galleries
-        $list_galleries = $this->global_service->__get_list_galleries($id, 'news');
-
-        //Get list tags
-        $list_tags = $em->getRepository('NewsBundle:NewsEntity')->_getListTagsNews($id, 'news');
-
         $defaultData = array();
         $form = $this->createFormBuilder($defaultData)
-            //->setAction($this->generateUrl('admincp_news_edit_page'))
+            //->setAction($this->generateUrl('admincp_categories_news_edit_page'))
             ->add('id', HiddenType::class, array(
                 'data' => $fields_value['id'],
-            ))
-            ->add('category_id', ChoiceType::class, array(
-                'label' => 'Category ID',
-                'choices' =>array(0 => 'Category ID'),
-                'data' => $fields_value['category_id']
             ))
             ->add('title', TextType::class, array(
                 'label' => 'Title',
                 'data' => $fields_value['title']
             ))
-            ->add('image', FileType::class, array(
-                'label' => 'Image',
-                'required' => FALSE
-            ))
-            ->add('description', TextareaType::class, array(
-                'label' => 'Description',
-                'data' => $fields_value['description']
-            ))
-            ->add('content', TextareaType::class, array(
-                'label' => 'Content',
-                'data' => $fields_value['content']
-            ))
             ->add('status', ChoiceType::class, array(
                 'label' => 'Status',
                 'data' => $fields_value['status'],
                 'choices' => array( 0 => 'Unpblish', 1 => 'Publish')
-            ))
-            ->add('tags', TextType::class, array(
-                'label' => 'Tags input',
-                'data' =>  '',
-                'required' => FALSE
-            ))
-            ->add('lists_thumb', TextareaType::class, array(
-                'data' => (!empty($list_galleries) ? json_encode($list_galleries) : ''),
-                'required' => FALSE
-            ))
-            ->add('lists_del_file', TextareaType::class, array(
-                'data' => '',
-                'required' => FALSE
             ))
             ->add('send', SubmitType::class, array(
                 'label' => 'Submit',
@@ -206,12 +160,10 @@ class AdminNewsController extends AdminCPController
         $form_errors = '';
         $success = FALSE;
         if ($form->isSubmitted() && $form->isValid()) {
-            $validation = new AdminNewsValidation();
+            $validation = new AdminCategoriesNewsValidation();
 
             $data = $form->getData();
             $validation->title = $data['title'];
-            $validation->description = $data['description'];
-            $validation->content = $data['content'];
 
             $validator = $this->get('validator');
             $errors = $validator->validate($validation);
@@ -219,39 +171,13 @@ class AdminNewsController extends AdminCPController
             $form_errors = $this->global_helper_service->getErrorMessages($errors);
             if(!$form_errors){
 
-                //Upload image
-                $service = $this->container->get('app.upload_files_service');
-                $data['image'] = $service->__upload_file_request($data['image'],'news');
-
                 if($data['id'] > 0){
                     /* Update record */
-                    $id = $em->getRepository('NewsBundle:NewsEntity')->_update_record_DB($data);
+                    $id = $em->getRepository('CategoriesNewsBundle:CategoriesNewsEntity')->_update_record_DB($data);
                 } else {
                     /* Create new record */
-                    $id = $em->getRepository('NewsBundle:NewsEntity')->_create_record_DB($data);
+                    $id = $em->getRepository('CategoriesNewsBundle:CategoriesNewsEntity')->_create_record_DB($data);
                 }
-
-                /* handle gallery images */
-                //create new files
-                if(!empty($data['lists_thumb'])){
-                    $files_gallery = json_decode($data['lists_thumb']);
-                    foreach ($files_gallery as $key => $value) {
-                        $service->__save_files_data($id, 'news', $value->file);
-                    }
-                }
-
-                //delete new files
-                if(!empty($data['lists_del_file'])){
-                    $lists_del_file = json_decode($data['lists_del_file']);
-                    foreach ($lists_del_file as $key_del_file => $del_file) {
-                        $service->__delete_files_data($id, 'news', $del_file->id);
-                    }
-                }
-                /* End handle gallery images */
-
-                /* handle tags */
-                $em->getRepository('NewsBundle:NewsEntity')->_handle_tags_new($id, 'news', $data['tags']);
-                /* End handle tags */
 
                 $success = TRUE;
             }
@@ -261,9 +187,7 @@ class AdminNewsController extends AdminCPController
             'form' => $form,
             'form_errors' => $form_errors,
             'success' => $success,
-            'fields_value' => $fields_value,
-            'list_galleries' => $list_galleries,
-            'list_tags' => (!empty($list_tags)) ? json_encode($list_tags): ''
+            'fields_value' => $fields_value
         );
 
         return $handle_data;
@@ -275,14 +199,12 @@ class AdminNewsController extends AdminCPController
     private function _report_data($arrData = array())
     {
 
-        $file_name = 'List-News-Data-' . date('Ymd') . '.xlsx';
+        $file_name = 'List-CategoriesNews-Data-' . date('Ymd') . '.xlsx';
 
         // Create excel file
         $header = array();
         $header[] = 'ID';
         $header[] = 'Title';
-        $header[] = 'Description';
-        $header[] = 'Content';
         $header[] = 'Status';
         $header[] = 'Created Date';
 
@@ -294,8 +216,6 @@ class AdminNewsController extends AdminCPController
                 $tmp = array();
                 $tmp[] = $value->getID();
                 $tmp[] = $value->getTitle();
-                $tmp[] = $value->getDescription();
-                $tmp[] = $value->getContent();
                 $tmp[] = $value->getStatus() == 1 ? 'Active' : 'UnActive';
                 $tmp[] = date('Y-m-d H:i:s',$value->getCreated_Date());
 
@@ -305,7 +225,5 @@ class AdminNewsController extends AdminCPController
             $this->global_helper_service->__export_to_excel($data,$file_name);
         }
     }
-
-
-
+    
 }

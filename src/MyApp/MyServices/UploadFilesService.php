@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Filesystem\Filesystem;
+use MyApp\News\Entity\FilesManagedEntity;
 
 
 class UploadFilesService extends Controller{
@@ -89,5 +90,86 @@ class UploadFilesService extends Controller{
 
             return $result;
         }
+    }
+
+    /**
+     * This function use save file to database
+     */
+    public function __save_files_data($type_id, $type = 'default', $file = '')
+    {
+
+        if($file && file_exists($this->getParameter('upload_dir').'/'.$file)){
+            $gallery_name = $type.'_gallery';
+
+            $entity = $this->em->getRepository('NewsBundle:FilesManagedEntity');
+            $query = $entity->createQueryBuilder('pk');
+            $query->select("pk");
+            $query->where('pk.type = :type');
+            $query->andWhere('pk.type_id = :type_id');
+            $query->andWhere('pk.file = :file');
+            $query->setParameter('type', $type);
+            $query->setParameter('type_id', $type_id);
+            $query->setParameter('file', $file);
+            $get_file_exists = $query->getQuery()->getResult();
+
+            if(empty($get_file_exists)) {
+                $file_gallery = $this->__creat_folder_upload($gallery_name);
+                $file_gallery_name = self::__random_file_name(15).'_'.rand(11111,99999).time().'.jpg';
+                $newfile = $file_gallery['path_url'].$file_gallery_name;
+
+                copy($this->getParameter('upload_dir').'/'.$file, $file_gallery['folder_path'].$file_gallery_name);
+                unlink($this->getParameter('upload_dir').'/'.$file);
+
+                //Create file in database
+                $create = new FilesManagedEntity();
+                $create->setTypeID($type_id);
+                $create->setType($type);
+                $create->setFile($newfile);
+                $create->setStatus(1);
+                $create->setCreated_Date(time());
+                $this->em->persist($create);
+                $this->em->flush();
+
+                return TRUE;
+
+            }
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * This function use delete file to database
+     */
+    public function __delete_files_data($type_id, $type = 'default', $file_id = 0){
+
+        if(!empty($file_id)){
+
+            $entity = $this->em->getRepository('NewsBundle:FilesManagedEntity');
+            $query = $entity->createQueryBuilder('pk');
+            $query->select("pk");
+            $query->where('pk.type = :type');
+            $query->andWhere('pk.type_id = :type_id');
+            $query->andWhere('pk.id = :id');
+            $query->setParameter('type', $type);
+            $query->setParameter('type_id', $type_id);
+            $query->setParameter('id', $file_id);
+            $get_file = $query->getQuery()->getSingleResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
+
+            if(!empty($get_file)) {
+                $get_file = (object)$get_file;
+                if(file_exists($this->getParameter('upload_dir').'/'.$get_file->file)){
+                    unlink($this->getParameter('upload_dir').'/'.$get_file->file);
+                }
+                $entity_delete = $entity->findOneBy(array('id' => $file_id));
+                $this->em->remove($entity_delete);
+                $this->em->flush();
+
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+
     }
 }
