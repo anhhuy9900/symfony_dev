@@ -38,7 +38,7 @@ class GlobalService extends Controller
             return $this->global_helper_service->__convert_result_to_object($result, 1);
         }
 
-        return FALSE;
+        return NULL;
     }
 
 }

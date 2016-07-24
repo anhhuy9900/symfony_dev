@@ -66,13 +66,14 @@ class AdminNewsRepository extends EntityRepository
     public function _getListRecords($offset, $limit, $where = array(), $order = array('field'=>'id', 'by'=>'DESC')){
         $repository = $this->getEntityManager()->getRepository('NewsBundle:NewsEntity');
         $query = $repository->createQueryBuilder('pk');
-        $query->select("pk");
+        $query->select("pk.id as id, pk.title as title, pk.image as image, pk.status as status, pk.updated_date as updated_date");
+        $query->addSelect("fk.title as category_title");
+        $query->leftJoin("CategoriesNewsBundle:CategoriesNewsEntity", "fk", "WITH", "pk.category_id=fk.id");
         $query->where('pk.id > 0');
         if(!empty($where)){
             if($where['key']){
                 $query->andWhere('pk.title LIKE :key')->setParameter('key', '%'.$where['key'].'%');
             }
-            //dump($where['date_range']);die();
             if($where['date_range']){
                 $query->andWhere('pk.updated_date >= :date_from')->setParameter('date_from', $where['date_range']['from']);
                 $query->andWhere('pk.updated_date <= :date_to')->setParameter('date_to', $where['date_range']['to']);
@@ -81,9 +82,9 @@ class AdminNewsRepository extends EntityRepository
         $query->orderBy("pk.".$order['field'], $order['by']);
         $query->setMaxResults($offset);
         $query->setFirstResult($limit);
-        $result = $query->getQuery();
+        $result = $query->getQuery()->getResult();
 
-        return $result->getResult();
+        return $result;
     }
 
     public function _getTotalRecords($key = ''){
@@ -96,6 +97,14 @@ class AdminNewsRepository extends EntityRepository
         $total = $query->getQuery()->getSingleScalarResult();
 
         return $total;
+    }
+
+    public function _getCategoriesNews(){
+        $repository = $this->getEntityManager()->getRepository('CategoriesNewsBundle:CategoriesNewsEntity');
+        $query = $repository->createQueryBuilder('pk');
+        $query->select("pk.id, pk.title");
+        $results = $query->getQuery()->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
+        return $results;
     }
 
     public function _getListTagsNews($type_id, $type = 'default'){

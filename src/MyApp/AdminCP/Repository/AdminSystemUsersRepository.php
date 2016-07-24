@@ -75,9 +75,9 @@ class AdminSystemUsersRepository extends EntityRepository
         $query->orderBy("pk.".$order['field'], $order['by']);
         $query->setMaxResults($offset);
         $query->setFirstResult($limit);
-        $result = $query->getQuery();
+        $result = $query->getQuery()->getArrayResult(\Doctrine\ORM\Query::HYDRATE_SCALAR);
 
-        return $result->getArrayResult(\Doctrine\ORM\Query::HYDRATE_SCALAR);
+        return $result;
     }
 
     public function _getTotalRecords($key = ''){

@@ -53,7 +53,7 @@ class AdminNewsController extends AdminCPController
         }
 
         $pagination = $this->global_helper_service->__pagination($total, $page_offset, $limit, 3, $this->generateUrl('admincp_news_page'));
-
+        //dump($results);die();
         $this->data['results'] = $results;
         $this->data['pagination'] = $pagination;
 
@@ -145,6 +145,10 @@ class AdminNewsController extends AdminCPController
             'status' => ( $result_data ? $result_data->getStatus() : 0 )
         );
 
+        //Get list categories
+        $categories = $em->getRepository('NewsBundle:NewsEntity')->_getCategoriesNews();
+        $list_categories = $this->global_helper_service->__convert_array_result_selectbox($categories, array('key'=>'id', 'value'=>'title'));
+
         //Get list galleries
         $list_galleries = $this->global_service->__get_list_galleries($id, 'news');
 
@@ -159,7 +163,7 @@ class AdminNewsController extends AdminCPController
             ))
             ->add('category_id', ChoiceType::class, array(
                 'label' => 'Category ID',
-                'choices' =>array(0 => 'Category ID'),
+                'choices' => $list_categories,
                 'data' => $fields_value['category_id']
             ))
             ->add('title', TextType::class, array(

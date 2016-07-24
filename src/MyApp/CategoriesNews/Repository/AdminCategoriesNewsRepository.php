@@ -60,7 +60,6 @@ class AdminCategoriesNewsRepository extends EntityRepository
             if($where['key']){
                 $query->andWhere('pk.title LIKE :key')->setParameter('key', '%'.$where['key'].'%');
             }
-            //dump($where['date_range']);die();
             if($where['date_range']){
                 $query->andWhere('pk.updated_date >= :date_from')->setParameter('date_from', $where['date_range']['from']);
                 $query->andWhere('pk.updated_date <= :date_to')->setParameter('date_to', $where['date_range']['to']);
@@ -69,9 +68,9 @@ class AdminCategoriesNewsRepository extends EntityRepository
         $query->orderBy("pk.".$order['field'], $order['by']);
         $query->setMaxResults($offset);
         $query->setFirstResult($limit);
-        $result = $query->getQuery();
+        $result = $query->getQuery()->getResult();
 
-        return $result->getResult();
+        return $result;
     }
 
     public function _getTotalRecords($key = ''){
